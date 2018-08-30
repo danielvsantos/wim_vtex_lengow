@@ -1,0 +1,8 @@
+﻿- Generate feed URL to give to Lengow
+- Syncs the orders that came from your marketplace through Lengow and sync order status
+
+**Prerequisite**
+
+- Check if your products has filled ean13
+
+[More information](https://www.lengow.com/)

@@ -1,0 +1,7 @@
+mutation CreateProductsForm($name: String) {
+  createProductsForm(data: {
+    name: $name
+  }) {
+    id
+  }
+}

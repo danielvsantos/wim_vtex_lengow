@@ -1,0 +1,20 @@
+{
+  "pages": {
+    "admin/wimvtexlengow": {
+      "path": "/admin/wimvtexlengow"
+    }
+  },
+  "extensions": {
+    "admin/wimvtexlengow": {
+      "component": "index_admin"
+    },
+    "admin/menu/wimvtexlengow": {
+      "component": "vtex.admin/NavItem",
+      "props": {
+        "icon": "extensions-ic",
+        "path": "/admin/wimvtexlengow",
+        "titleId": "wimvtexlengow.admin-menu-button"
+      }
+    }
+  }
+}

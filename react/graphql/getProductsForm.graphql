@@ -1,0 +1,6 @@
+query GetProductsForm {
+  autopersistedProductsForm {
+    id
+    name
+  }
+}

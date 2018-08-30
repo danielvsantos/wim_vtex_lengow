@@ -1,0 +1,60 @@
+{
+  "vendor": "webimpacto",
+  "name": "wimvtexlengow",
+  "version": "0.1.1",
+  "title": "Lengow Integration",
+  "description": "Integrate sync orders from Lengow flow",
+  "credentialType": "absolute",
+  "defaultLocale": "es-AR",
+  "builders": {
+    "graphql": "1.x",
+    "pages": "0.x",
+    "react": "2.x",
+    "node": "3.x"
+  },
+  "mustUpdateAt": "2019-08-24",
+  "categories": [],
+  "registries": [
+    "smartcheckout"
+  ],
+  "dependencies": {
+    "vtex.admin": "1.x",
+    "vtex.store-graphql": "2.x"
+  },
+  "billingOptions": {
+    "free": true
+  },
+  "settingsSchema": {},
+  "scripts": {
+    "postreleasy": "vtex publish --verbose"
+  },
+  "policies": [
+    {
+      "name": "colossus-write-logs"
+    },
+    {
+      "name": "vbase-read-write"
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "{{account}}.vtexcommercestable.com.br",
+        "path": "/api/dataentities/exemption/search"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "{{account}}.vtexcommercestable.com.br",
+        "path": "/api/catalog_system/pvt/sku/stockkeepingunitbyid/*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "logistics.vtexcommercestable.com.br",
+        "path": "/api/logistics/pvt/configuration/docks/*"
+      }
+    }
+  ]
+}

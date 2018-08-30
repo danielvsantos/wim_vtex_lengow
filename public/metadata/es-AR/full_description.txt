@@ -1,0 +1,7 @@
+﻿- Genera una URL para dar a Lengow el feed
+- Sincroniza los pedidos
+**Prerequisite**
+
+- Check if your products has filled ean13
+
+[More information](https://www.lengow.com/)
