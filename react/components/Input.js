@@ -7,9 +7,9 @@ class Input extends Component {
     this.handleChange = this.handleChange.bind(this)
   }
 
-  handleChange (e) {
-    this.props.onChange(e)
-  }
+    handleChange (e) {
+        this.props.onChange(e)
+    }
 
   render () {
     const {id, type, value, invalid} = this.props

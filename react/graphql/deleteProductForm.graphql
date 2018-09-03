@@ -1,0 +1,3 @@
+mutation deleteAutopersistedProductForm($id: ID!) {
+  deleteAutopersistedProductForm(id: $id)
+}

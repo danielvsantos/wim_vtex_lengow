@@ -1,5 +1,5 @@
 mutation CreateProductsForm($name: String) {
-  createProductsForm(data: {
+  createAutopersistedProductsForm(data: {
     name: $name
   }) {
     id

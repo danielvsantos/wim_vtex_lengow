@@ -1,5 +1,5 @@
 query GetProductsForm {
-  autopersistedProductsForm {
+  autopersistedProductsForms {
     id
     name
   }

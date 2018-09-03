@@ -6,21 +6,4 @@ type AutopersistedProductsForm @autopersist {
   name: String # @searchable allows you to fetch a book by it's name
 }
 
-# Cache control can be set at each field
-# ref: https://www.apollographql.com/docs/engine/caching.html
-type CachedProductsForm {
-  id: ID!
-  name: String
-}
-
-# It is necessary to generate input types for creating books
-# ref: http://graphql.org/graphql-js/mutations-and-input-types/
-input CachedProductsFormInput {
-  name: String
-}
-
-type Query {
-  cachedProductsForms: [CachedProductsForm!] @cacheControl(scope: PUBLIC, maxAge: SHORT)
-  cachedProductsForm(id: ID!): CachedProductsForm 
-}
-
+type Query
