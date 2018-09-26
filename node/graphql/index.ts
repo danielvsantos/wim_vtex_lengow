@@ -1,4 +1,1 @@
-interface ProductsForm {
-  id: string
-  name: string
-}
+//Index.ts

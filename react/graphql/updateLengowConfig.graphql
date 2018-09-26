@@ -1,0 +1,9 @@
+mutation updatewimLengowConfig($data: wimLengowConfig__Input__Generated!){
+  updatewimLengowConfig(data: $data){
+    id,
+    vtex_account,
+    account,
+    apiKey,
+    boolSandbox
+  }
+}

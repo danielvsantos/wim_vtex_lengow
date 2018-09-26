@@ -2,13 +2,14 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {compose, graphql} from 'react-apollo'
 
-import Button from './components/Button';
-import Input from './components/Input';
-import Label from './components/Label';
 
-import createAutopersistedProductsForm from './graphql/createProductsForm.graphql'
-import getProductsForm from './graphql/getProductsForm.graphql'
-import deleteAutopersistedProductForm from './graphql/deleteProductForm.graphql'
+import { Button } from 'vtex.styleguide'
+
+import LengowConfig from './components/LengowConfig'
+
+import getLengowConfigs from './graphql/getLengowConfigs.graphql'
+import createLengowConfig from './graphql/createLengowConfig.graphql'
+import updateLengowConfig from './graphql/updateLengowConfig.graphql'
 
 
 class WimVtexLengowSetup extends Component {
@@ -16,102 +17,107 @@ class WimVtexLengowSetup extends Component {
         super(props)
 
         this.state = {
-            accountId: '',
-            idABorrar: '',
-            data: this.props.data.autopersistedProductsForms,
-        }
 
-        this.handleAccountId = this.handleAccountId.bind(this)
-        this.rellenarInputBorrar = this.rellenarInputBorrar.bind(this)
+            id_wim_lengow_config: null,
+            vtex_account: '',
+            account: '',
+            apiKey: '',
+            boolSandbox: true,
+
+            salesChanel: '',
+            flagExportDisableSKU: '',
+            flagExportOutOfStockSKU: '',
+            listExludedSkus: [],
+
+            id_status_vtex: '',
+            id_status_lengow: '',
+
+            disabled_save: false
+        }
 
     }
 
-    handleAccountId = (event) => {
-        this.setState({accountId: event.target.value})
+    handleInputChange = (stateName, value) => {
+        this.setState({[stateName]: value})
     }
 
     saveProductForm = (event) => {
+        this.setState({disabled_save: true})
+        window.postMessage({ action: { type: 'START_LOADING' } }, '*')
+
         const options = {
             variables: {
-                name: this.state.accountId,
+                data: {
+                    vtex_account: this.state.vtex_account,
+                    account: this.state.account,
+                    apiKey: this.state.apiKey,
+                    boolSandbox: this.state.boolSandbox
+                }
+
             },
         }
-        this.props.createAutopersistedProductsForm(options).then(
-            this.setState({accountId: ''})
-        );
 
-    }
-
-    deleteProductForm = (event) => {
-        const options = {
-            variables: {
-                id: this.state.idABorrar
-            }
+        if(!this.state.id_wim_lengow_config){
+            this.props.createLengowConfig(options).then((res) => {
+                this.setState({id_wim_lengow_config: res.data.createwimLengowConfig.id})
+                this.setState({disabled_save: false})
+            })
+        }
+        else{
+            options.variables.data.id = this.state.id_wim_lengow_config;
+            this.props.updateLengowConfig(options).then((res) => {
+                this.setState({disabled_save: false})
+            })
         }
 
-        this.props.deleteAutopersistedProductForm(options).then(
-            this.setState({idABorrar: ''})
-        )
+        window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
     }
 
-    rellenarInputBorrar = (event) => {
-        alert("test");
-    }
+    componentWillReceiveProps(nextProps){
+        if (!nextProps.getLengowConfigs.loading && this.props.getLengowConfigs.loading && nextProps.getLengowConfigs.wimLengowConfigs[0]) {
+            let lengowConfig = nextProps.getLengowConfigs.wimLengowConfigs[0]
 
-    /*handleAccountId({ target: { id, value } }) {
-        const trimmedValue = value.trim()
-    }*/
+            
+
+            this.setState({
+                id_wim_lengow_config: lengowConfig.id,
+                vtex_account: lengowConfig.vtex_account,
+                account: lengowConfig.account,
+                apiKey: lengowConfig.apiKey,
+                boolSandbox: lengowConfig.boolSandbox,
+            })
+
+        }
+      }
+
 
     render() {
-        const {
-            data: {autopersistedProductsForms},
-        } = this.props
+        const {loading} = this.props.getLengowConfigs
+        
+        if(loading){
+            return (
+                <div>AGUARDE</div>
+            )
+        }
 
+        window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
+
+        const textButton = (!this.state.id_wim_lengow_config) ? 'SAVE' : 'UPDATE';
 
         return (
             <div className="font-display dark-gray flex flex-wrap justify-center">
                 <div className="w-100 w-90-m w-60-l w-60-ns">
-                    <div className="w-50-ns center">
-                        <h1>TEST TITLE</h1>
-                        <Label htmlFor="production-mode">
-                            Production Mode <span className="dark-red">*</span>
-                        </Label>
-                        <Input
-                            type="text"
-                            id="account-id"
-                            value={this.state.accountId || ''}
-                            onChange={this.handleAccountId}
-                        />
-                        <Button onClick={this.saveProductForm}>
-                            TEST
-                        </Button>
-                    </div>
-                </div>
-
-                <div>
-                    <h1> Listado </h1>
-
-
-
-                    {autopersistedProductsForms && autopersistedProductsForms.map(function (d, idx) {
-                        return (<li key={idx}>{d.name} - {d.id}</li>)
-                    })}
-
-
-                    <Input
-                        type="text"
-                        id="idABorrar"
-                        value={this.state.idABorrar}
-                        onChange={this.handleidABorrar}
-                    />
-                    <Button onClick={this.deleteProductForm}>
-                        BORRAR
+                
+                <LengowConfig loading={loading} vtex_account={this.state.vtex_account} 
+            account={this.state.account} apiKey={this.state.apiKey}  boolSandbox={this.state.boolSandbox} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
+            
+                <div className="w-50-ns center">
+                    <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
+                            {textButton}
                     </Button>
-
+                </div>
                 </div>
             </div>
-
-
         )
     }
 }
@@ -123,8 +129,8 @@ WimVtexLengowSetup.propTypes = {
 }
 */
 export default compose(
-    graphql(createAutopersistedProductsForm, {name: 'createAutopersistedProductsForm'}),
-    graphql(deleteAutopersistedProductForm, {name: 'deleteAutopersistedProductForm'}),
-    graphql(getProductsForm)
+    graphql(getLengowConfigs, {name: 'getLengowConfigs'}),
+    graphql(createLengowConfig, {name: 'createLengowConfig'}),
+    graphql(updateLengowConfig, {name: 'updateLengowConfig'})
 )(WimVtexLengowSetup)
 //export default WimVtexLengowSetup

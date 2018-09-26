@@ -1,0 +1,12 @@
+{
+    "stack": "nodejs",
+    "memory": 512,
+    "ttl": 300,
+    "timeout": 40,
+    "routes": {
+      "lengowHandler": {
+        "path": "/integration/lengow",
+        "public": true
+      }
+    }
+}

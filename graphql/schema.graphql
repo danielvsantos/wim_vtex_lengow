@@ -1,9 +1,35 @@
 # To really understand GraphQL, go to http://graphql.org/learn/
 
 # Autopersisted types are stored automatically in VTEX masterdata
-type AutopersistedProductsForm @autopersist {
-  id: ID!                   # Autopersisted types must have an ID
-  name: String # @searchable allows you to fetch a book by it's name
+
+type wimLengowConfig @autopersist{
+  id: ID!  
+  vtex_account: String,
+	account: String,
+	apiKey: String,
+	boolSandbox: Boolean
 }
 
-type Query
+ type wimLengowProductConfig @autopersist{
+	id: ID! 
+	vtex_account: String,
+	salesChanel:  Int,
+	flagExportDisableSKU: Boolean,
+	flagExportOutOfStockSKU: Boolean,
+	listExludedSkus: [wimLengowSKU]
+}
+
+type wimLengowSKU{
+	id: ID! 
+	sku: String
+}
+
+type wimLengowOrderStatus @autopersist{
+	id: ID!,
+	id_status_vtex: Int,
+	id_status_lengow: Int
+}
+
+type Query{
+	wimLengowConfigs: [wimLengowConfig]
+}

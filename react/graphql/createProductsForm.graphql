@@ -1,7 +1,0 @@
-mutation CreateProductsForm($name: String) {
-  createAutopersistedProductsForm(data: {
-    name: $name
-  }) {
-    id
-  }
-}
