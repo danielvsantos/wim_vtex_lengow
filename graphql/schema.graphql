@@ -30,6 +30,4 @@ type wimLengowOrderStatus @autopersist{
 	id_status_lengow: Int
 }
 
-type Query{
-	wimLengowConfigs: [wimLengowConfig]
-}
+type Query
