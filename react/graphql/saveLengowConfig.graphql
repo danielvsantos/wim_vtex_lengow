@@ -1,0 +1,15 @@
+mutation saveLengowConfig($data: wimLengowConfigInput){
+  saveLengowConfig(config: $data){
+    vtex_account,
+    account,
+    apiKey,
+    boolSandbox,
+    salesChannel,
+    flagExportDisableSKU,
+    flagExportOutOfStockSKU,
+    flagCheckValidGTIN,
+    listExludedSkus,
+    mappingOrderStatus,
+    feedFormat,
+  }
+}

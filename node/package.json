@@ -3,9 +3,12 @@
     "version": "0.1.0",
     "dependencies": {
       "@vtex/api": "^0.35.0",
-      "axios": "^0.15.3",
+      "axios": "^0.18.0",
       "request": "^2.88.0",
-      "graphql-request": "^1.8.2"
+      "graphql-request": "^1.8.2",
+      "cookie": "^0.3.1",
+      "xml-js": "^1.6.8",
+      "gtin": "^0.3.0"
      
 
     }

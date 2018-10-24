@@ -1,0 +1,15 @@
+query{
+  wimLengowConfig{
+    vtex_account,
+    account,
+    apiKey,
+    boolSandbox,
+    salesChannel,
+    flagExportDisableSKU,
+    flagExportDisableSKU,
+    flagCheckValidGTIN,
+    listExludedSkus,
+    mappingOrderStatus,
+    feedFormat,
+  }
+}

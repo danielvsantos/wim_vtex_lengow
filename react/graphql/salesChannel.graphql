@@ -1,0 +1,6 @@
+query{
+  salesChannel{
+    Id,
+    Name
+  }
+}

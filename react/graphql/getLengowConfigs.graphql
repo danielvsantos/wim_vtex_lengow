@@ -1,9 +1,0 @@
-query{
-  wimLengowConfigs{
-    id,
-    vtex_account,
-    account,
-    apiKey,
-    boolSandbox
-  }
-}

@@ -4,8 +4,12 @@
     "ttl": 300,
     "timeout": 40,
     "routes": {
-      "lengowHandler": {
-        "path": "/integration/lengow",
+      "createFeed": {
+        "path": "/integration/lengow/createFeed",
+        "public": true
+      },
+      "feed": {
+        "path": "/integration/lengow/feed",
         "public": true
       }
     }

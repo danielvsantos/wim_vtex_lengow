@@ -2,21 +2,36 @@
 
 # Autopersisted types are stored automatically in VTEX masterdata
 
-type wimLengowConfig @autopersist{
-  id: ID!  
-  vtex_account: String,
+type wimLengowConfig{
+	#id: ID!  
+	vtex_account: String,
 	account: String,
 	apiKey: String,
-	boolSandbox: Boolean
-}
-
- type wimLengowProductConfig @autopersist{
-	id: ID! 
-	vtex_account: String,
-	salesChanel:  Int,
+	boolSandbox: Boolean,
+	salesChannel: String,
 	flagExportDisableSKU: Boolean,
 	flagExportOutOfStockSKU: Boolean,
-	listExludedSkus: [wimLengowSKU]
+	flagCheckValidGTIN: Boolean,
+	listExludedSkus: String,
+	mappingOrderStatus: String,
+	feedFormat: String,
+	lastDateGenerated: String,
+
+}
+
+input wimLengowConfigInput{
+	#id: ID!  
+	vtex_account: String,
+	account: String,
+	apiKey: String,
+	boolSandbox: Boolean,
+	salesChannel: String,
+	flagExportDisableSKU: Boolean,
+	flagExportOutOfStockSKU: Boolean,
+	listExludedSkus: String,
+	mappingOrderStatus: String,
+	flagCheckValidGTIN: Boolean,
+	feedFormat: String
 }
 
 type wimLengowSKU{
@@ -24,10 +39,23 @@ type wimLengowSKU{
 	sku: String
 }
 
-type wimLengowOrderStatus @autopersist{
+type salesChannel{
+	Id: ID!,
+	Name: String
+}
+
+type wimLengowOrderStatus{
 	id: ID!,
 	id_status_vtex: Int,
 	id_status_lengow: Int
 }
 
-type Query
+type Query {
+  	wimLengowConfig: wimLengowConfig,
+	salesChannel: [salesChannel]
+}
+
+type Mutation{
+	saveLengowConfig(config: wimLengowConfigInput): wimLengowConfig
+}
+

@@ -7,9 +7,9 @@ import { Button } from 'vtex.styleguide'
 
 import LengowConfig from './components/LengowConfig'
 
-import getLengowConfigs from './graphql/getLengowConfigs.graphql'
-import createLengowConfig from './graphql/createLengowConfig.graphql'
-import updateLengowConfig from './graphql/updateLengowConfig.graphql'
+import wimLengowConfig from './graphql/wimLengowConfig.graphql'
+import saveLengowConfig from './graphql//saveLengowConfig.graphql'
+import salesChannel from './graphql/salesChannel.graphql'
 
 
 class WimVtexLengowSetup extends Component {
@@ -17,74 +17,64 @@ class WimVtexLengowSetup extends Component {
         super(props)
 
         this.state = {
+            lengow_config: {
+                vtex_account: '',
+                account: '',
+                apiKey: '',
+                boolSandbox: true,
 
-            id_wim_lengow_config: null,
-            vtex_account: '',
-            account: '',
-            apiKey: '',
-            boolSandbox: true,
+                salesChannel: false,
+                flagExportDisableSKU: true,
+                flagExportOutOfStockSKU: true,
+                listExludedSkus: '',
 
-            salesChanel: '',
-            flagExportDisableSKU: '',
-            flagExportOutOfStockSKU: '',
-            listExludedSkus: [],
+                id_status_vtex: '',
+                id_status_lengow: '',
 
-            id_status_vtex: '',
-            id_status_lengow: '',
+                feedFormat: 'json'
+            },
 
-            disabled_save: false
+                disabled_save: false
         }
 
     }
 
-    handleInputChange = (stateName, value) => {
-        this.setState({[stateName]: value})
+    handleInputChange = (name, value) => {
+        let lengow_config = Object.assign({}, this.state.lengow_config); 
+        lengow_config[name] = value;
+        console.log(lengow_config, name, value);
+        this.setState({lengow_config});
     }
 
     saveProductForm = (event) => {
         this.setState({disabled_save: true})
         window.postMessage({ action: { type: 'START_LOADING' } }, '*')
 
+        let lengow_config = this.state.lengow_config;
+
         const options = {
             variables: {
-                data: {
-                    vtex_account: this.state.vtex_account,
-                    account: this.state.account,
-                    apiKey: this.state.apiKey,
-                    boolSandbox: this.state.boolSandbox
-                }
-
+                data: lengow_config
             },
         }
 
-        if(!this.state.id_wim_lengow_config){
-            this.props.createLengowConfig(options).then((res) => {
-                this.setState({id_wim_lengow_config: res.data.createwimLengowConfig.id})
+        
+            this.props.saveLengowConfig(options).then((res) => {
                 this.setState({disabled_save: false})
             })
-        }
-        else{
-            options.variables.data.id = this.state.id_wim_lengow_config;
-            this.props.updateLengowConfig(options).then((res) => {
-                this.setState({disabled_save: false})
-            })
-        }
+        
 
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
     }
 
     componentWillReceiveProps(nextProps){
-        if (!nextProps.getLengowConfigs.loading && this.props.getLengowConfigs.loading && nextProps.getLengowConfigs.wimLengowConfigs[0]) {
-            let lengowConfig = nextProps.getLengowConfigs.wimLengowConfigs[0]
+       if (!nextProps.wimLengowConfig.loading && this.props.wimLengowConfig.loading && nextProps.wimLengowConfig.wimLengowConfig) {
+            let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
             
 
             this.setState({
-                id_wim_lengow_config: lengowConfig.id,
-                vtex_account: lengowConfig.vtex_account,
-                account: lengowConfig.account,
-                apiKey: lengowConfig.apiKey,
-                boolSandbox: lengowConfig.boolSandbox,
+                lengow_config: lengowConfig
             })
 
         }
@@ -92,14 +82,14 @@ class WimVtexLengowSetup extends Component {
 
 
     render() {
-        const {loading} = this.props.getLengowConfigs
         
-        if(loading){
+        
+        if(this.props.wimLengowConfig.loading || this.props.salesChannel.loading){
             return (
                 <div>AGUARDE</div>
             )
         }
-
+        console.log("RENDER", this.state.lengow_config );
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
 
         const textButton = (!this.state.id_wim_lengow_config) ? 'SAVE' : 'UPDATE';
@@ -108,8 +98,7 @@ class WimVtexLengowSetup extends Component {
             <div className="font-display dark-gray flex flex-wrap justify-center">
                 <div className="w-100 w-90-m w-60-l w-60-ns">
                 
-                <LengowConfig loading={loading} vtex_account={this.state.vtex_account} 
-            account={this.state.account} apiKey={this.state.apiKey}  boolSandbox={this.state.boolSandbox} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
+                <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={ this.props.salesChannel.salesChannel} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
             
                 <div className="w-50-ns center">
                     <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
@@ -128,9 +117,12 @@ WimVtexLengowSetup.propTypes = {
   mutate: PropTypes.func
 }
 */
+
 export default compose(
-    graphql(getLengowConfigs, {name: 'getLengowConfigs'}),
-    graphql(createLengowConfig, {name: 'createLengowConfig'}),
-    graphql(updateLengowConfig, {name: 'updateLengowConfig'})
+    graphql(wimLengowConfig, {name: 'wimLengowConfig'}),
+    graphql(salesChannel, {name: 'salesChannel'}),
+    graphql(saveLengowConfig, {name: 'saveLengowConfig'}),
 )(WimVtexLengowSetup)
+
+
 //export default WimVtexLengowSetup
