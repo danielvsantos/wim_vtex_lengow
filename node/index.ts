@@ -5,6 +5,7 @@ import { errorResponse } from './utils/error'
 import { notFound } from './utils/status'
 import VBaseClient from './vbase'
 import { validate } from 'gtin'
+import { importOrders } from './importorders'
 
 
 
@@ -93,6 +94,11 @@ const checkValidEan = (ean) => {
 
 export default {
   routes: {
+    importorders: async (ctx) => {
+        let result = importOrders(ctx);
+        setDefaultHeaders(ctx.response);
+        ctx.response.body = result;
+    },
     createFeed: async (ctx) => {
       const { response: res, vtex: ioContext } = ctx
       const { account, authToken } = ioContext

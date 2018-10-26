@@ -40,7 +40,7 @@
     {
       "name": "outbound-access",
       "attrs": {
-        "host": "webimpacto.vtexcommercestable.com.br",
+        "host": "{{account}}.vtexcommercestable.com.br",
         "path": "/api/catalog_system/*"
       }
     },
@@ -61,7 +61,7 @@
     {
       "name": "outbound-access",
       "attrs":{
-        "host": "wimvtexlengow.webimpacto.aws-us-east-1.vtex.io",
+        "host": "wimvtexlengow.{{account}}.aws-us-east-1.vtex.io",
         "path":"*"
       }
     },
@@ -75,14 +75,28 @@
     {
       "name": "outbound-access",
       "attrs":{
-        "host": "webimpacto.myvtex.com",
+        "host": "{{account}}.vtexpayments.com.br",
         "path":"*"
       }
     },
     {
       "name": "outbound-access",
       "attrs":{
-        "host": "pmartin--webimpacto.myvtex.com",
+        "host": "{{account}}.myvtex.com",
+        "path":"*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs":{
+        "host": "api.lengow.io",
+        "path":"*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs":{
+        "host": "api.lengow.net",
         "path":"*"
       }
     },

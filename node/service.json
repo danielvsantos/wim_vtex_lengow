@@ -11,6 +11,10 @@
       "feed": {
         "path": "/integration/lengow/feed",
         "public": true
+      },
+      "importorders": {
+        "path": "/integration/lengow/importorders",
+        "public": true
       }
     }
 }

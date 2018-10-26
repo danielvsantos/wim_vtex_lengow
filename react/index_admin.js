@@ -21,15 +21,16 @@ class WimVtexLengowSetup extends Component {
                 vtex_account: '',
                 account: '',
                 apiKey: '',
+                apiSecret: '',
+                vtexApiKey: '',
+                vtexApiToken: '',
+                prefixAffiliateID: 'LNGW',
                 boolSandbox: true,
 
                 salesChannel: false,
                 flagExportDisableSKU: true,
                 flagExportOutOfStockSKU: true,
                 listExludedSkus: '',
-
-                id_status_vtex: '',
-                id_status_lengow: '',
 
                 feedFormat: 'json'
             },

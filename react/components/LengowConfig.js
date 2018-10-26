@@ -39,13 +39,24 @@ export default class LengowConfig extends React.Component{
                         <div className="mb5">
                             <Input className="tc pa2" label="VTEX Account" type="text" id="vtex_account" name="vtex_account" value={lengow_config.vtex_account} onChange={this.handleInputChange}/>
                         </div>
-
                         <div className="mb5">
-                            <Input className="tc pa2" label="Account" type="text" id="account" name="account" value={lengow_config.account} onChange={this.handleInputChange}/>
+                            <Input className="tc pa2" label="VTEX Api Key" type="text" id="vtexApiKey" name="vtexApiKey" value={lengow_config.vtexApiKey} onChange={this.handleInputChange}/>
+                        </div>
+                        <div className="mb5">
+                            <Input className="tc pa2" label="VTEX Api Token" type="text" id="vtexApiToken" name="vtexApiToken" value={lengow_config.vtexApiToken} onChange={this.handleInputChange}/>
+                        </div>
+                        <div className="mb5">
+                            <Input className="tc pa2" label="Prefix to imported orders - Affilitiate ID" type="text" id="prefixAffiliateID" name="prefixAffiliateID" value={lengow_config.prefixAffiliateID} onChange={this.handleInputChange}/>
+                        </div>
+                        <div className="mb5">
+                            <Input className="tc pa2" label="Lengow Account" type="text" id="account" name="account" value={lengow_config.account} onChange={this.handleInputChange}/>
                         </div>
 
                         <div className="mb5">
-                            <Input className="tc pa2" label="API KEY" type="text" id="apiKey" name="apiKey" value={lengow_config.apiKey} onChange={this.handleInputChange}/>
+                            <Input className="tc pa2" label="Lengow API KEY" type="text" id="apiKey" name="apiKey" value={lengow_config.apiKey} onChange={this.handleInputChange}/>
+                        </div>
+                        <div className="mb5">
+                            <Input className="tc pa2" label="Lengow API Secret" type="text" id="apiSecret" name="apiSecret" value={lengow_config.apiSecret} onChange={this.handleInputChange}/>
                         </div>
 
                         <div className="mb5">
