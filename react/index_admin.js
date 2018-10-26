@@ -34,9 +34,18 @@ class WimVtexLengowSetup extends Component {
 
                 feedFormat: 'json'
             },
-
+                loading: this.props.wimLengowConfig,
                 disabled_save: false
         }
+
+        if(!this.props.wimLengowConfig.loading){
+            this.state.loading = true;
+            this.props.wimLengowConfig.refetch().then(res => {
+                let lengow_config  = res.data.wimLengowConfig;
+                this.setState({lengow_config, loading: false});
+            });
+        }
+
 
     }
 
@@ -72,10 +81,9 @@ class WimVtexLengowSetup extends Component {
        if (!nextProps.wimLengowConfig.loading && this.props.wimLengowConfig.loading && nextProps.wimLengowConfig.wimLengowConfig) {
             let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
-            
-
             this.setState({
-                lengow_config: lengowConfig
+                lengow_config: lengowConfig,
+                loading: nextProps.wimLengowConfig.loading
             })
 
         }
@@ -83,9 +91,9 @@ class WimVtexLengowSetup extends Component {
 
 
     render() {
+        console.log(this.props);
         
-        
-        if(this.props.wimLengowConfig.loading || this.props.salesChannel.loading){
+        if(this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.state.loading ){
             return (
                 <div>AGUARDE</div>
             )
