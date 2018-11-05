@@ -11,6 +11,26 @@ const LENGOW_API_SANDBOX_URL = 'api.lengow.net';
 
 const querystring = require('querystring');
 
+export const changeOrderStatus = async(ctx,status) => {
+    const {request: req, response: res,vtex: ioContext} = ctx
+    const {account, authToken} = ioContext
+    const apps = new Apps(ctx.vtex)
+    const app = process.env.VTEX_APP_ID
+
+    let idOrder = 0
+    switch(status){
+        case 'cancel': idOrder = req.url.replace(/integration\/lengow\/pvt\/orders\/|\/cancel/g,'').replace('/','')
+        break;
+        case 'invoice':  idOrder = req.url.replace(/integration\/lengow\/pub\/orders\/|\/invoice/g,'').replace('/','')
+        break;
+    }
+    
+
+    console.log('ENTRAMOS A ::::',status)
+    console.log('EL ID ORDER ES ', idOrder)
+    console.log('LA REQUEST ES',JSON.stringify(req,null,2))
+} 
+
 export const importOrders = async (ctx) => {
     //var jwtDecode  = require('jwt-decode')
     const {request: req, response: res,vtex: ioContext} = ctx
@@ -65,7 +85,7 @@ export const importOrders = async (ctx) => {
 
         let dateFilter = new Date();
         dateFilter.setDate(dateFilter.getDate()-30);
-        console.log('eee',dateFilter.toISOString().replace(/\..+/, '+00:00'))
+
         let lengowFilterOrders = {
             account_id : lengowToken.account_id,
             updated_from: dateFilter.toISOString().replace(/\..+/, '+00:00'),
@@ -119,6 +139,8 @@ export const importOrders = async (ctx) => {
         let paymentData = await orderUtils.getPaymentData(account,dataLengowConfig,authToken);
 
         lengowOrders.results.forEach(async order =>  {
+
+            let totalOrder = 0;
             let simulationParams = {
                 'postalCode': order.packages[0].delivery.zipcode,
                 'country': orderUtils.convertCountryAlpha2ToAlpha3(order.packages[0].delivery.common_country_iso_a2),
@@ -144,14 +166,20 @@ export const importOrders = async (ctx) => {
                     }
                 });
             }
-            simulationCall.data.logisticsInfo.forEach(sla => {
-                if(!sla){
+            simulationCall.data.logisticsInfo.forEach(logisticData => {
+                if(!logisticData){
                     //TODO LOG ERROR BECAUSE WE CANT DISPATCH THIS ORDER WITH VTEX LOGISTIC DATA
+                }else if(!logisticData.slas[0]){
+                    //TODO LOG ERROR BECAUSE WE CANT DISPATCH THIS ORDER WITH VTEX LOGISTIC DATA
+                }else{
+                    totalOrder += logisticData.slas[0].price
                 }
             });
             
 
             simulationCall.data.items.forEach(item => {
+                totalOrder += item.price * item.quantity
+
                 order.packages[0].cart.forEach(order_line => {
                     if(order_line.merchant_product_id.id == item.id){
                         item.price = ""+parseInt(""+(parseFloat(order_line.amount) * 100));
@@ -160,7 +188,7 @@ export const importOrders = async (ctx) => {
                 });
             });
             console.log('La Simulacion tiene',JSON.stringify(simulationCall.data,null,2));
-            optionsInsertOrder.data = orderUtils.formatSimulationToOrderVTEX(account,simulationCall.data,paymentData,order);
+            optionsInsertOrder.data = orderUtils.formatSimulationToOrderVTEX(totalOrder,account,simulationCall.data,paymentData,order,dataLengowConfig);
             console.log('UUUUUU',JSON.stringify(optionsInsertOrder.data,null,2))
             let orderVtexInserted = await orderUtils.getAjaxData(optionsInsertOrder);
             console.log('YIEEEJAAAAA',orderVtexInserted)

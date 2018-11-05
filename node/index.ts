@@ -1,14 +1,10 @@
 import { Apps } from '@vtex/api'
 
 import { GraphQLClient } from 'graphql-request'
-import { errorResponse } from './utils/error'
 import { notFound } from './utils/status'
 import VBaseClient from './vbase'
-import { validate } from 'gtin'
-import { importOrders } from './importorders'
-
-
-
+import { importOrders, changeOrderStatus } from './importorders'
+import * as orderUtils from './utils/ordersutils'
 
 
 const setDefaultHeaders = (res) => {
@@ -18,82 +14,30 @@ const setDefaultHeaders = (res) => {
   res.set('Cache-Control', 'no-cache')
 }
 
-const pvtHandler = () => {
-  return "jaja";
-}
-
 const fileName = `wimLengowFeed.txt`
 //  const client = new ApolloClient();
 
-const createSafePost = (callback: Function) => {
-  return async (ctx) => {
-    const { request: req, response: res, vtex: ioContext } = ctx
-
-    try {
-      const { status, data, extract, contentType } = await callback(req, res, ioContext)
-      res.status = status
-      res.set('Cache-Control', 'no-cache')
-      res.body = extract ? data : { data }
-      res.set('Content-Type', contentType ? contentType : 'application/json')
-    } catch (err) {
-      const errorMessage = `Error processing ${callback.name}`
-      const errorRes = errorResponse(err)
-
-      res.set('Cache-Control', 'no-cache')
-      res.set('Content-Type', 'application/json')
-      res.status = err.response ? err.response.status : 500
-      res.body = { error: errorRes }
-
-      console.error(errorMessage, errorRes)
-
-    }
-  }
-}
 
 
-const lengowQuery = `query{
-    wimLengowConfig{
-      vtex_account,
-      account,
-      apiKey,
-      boolSandbox,
-      salesChannel,
-      flagExportDisableSKU,
-      flagExportDisableSKU,
-      flagCheckValidGTIN,
-      listExludedSkus,
-      mappingOrderStatus,
-      feedFormat,
-      lastDateGenerated,
-    }
-  }
-`
-
-const convertToXML = (object) => {
-  var convert = require('xml-js');
-  var options = { compact: true, ignoreComment: true, spaces: 4 };
-  let result = convert.json2xml({ catalogue: object }, options);
-
-  result = `<?xml version="1.0" encoding="utf-8"?>` + result
-
-  return result;
 
 
-}
 
 
-const checkValidEan = (ean) => {
-  let isValidGTIN = false;
-  try {
-    isValidGTIN = validate(ean);
-  } catch (e) { }
-  return isValidGTIN;
-}
 
 
 
 export default {
   routes: {
+    cancelOrderEndpoint: async(ctx) => {
+      let result = changeOrderStatus(ctx, 'cancel')
+      setDefaultHeaders(ctx.response);
+      ctx.response.body = result;
+    },
+    invoiceOrderEndpoint: async (ctx) => {
+      let result = changeOrderStatus(ctx, 'invoice')
+      setDefaultHeaders(ctx.response);
+      ctx.response.body = result;
+    },
     importorders: async (ctx) => {
         let result = importOrders(ctx);
         setDefaultHeaders(ctx.response);
@@ -112,7 +56,7 @@ export default {
         }
       })
 
-      let dataLengowConfig = await graphQLClient.request(lengowQuery)
+      let dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
 
       let from = 0;
       let to = 49;
@@ -183,7 +127,7 @@ export default {
             numSKUSItems += 1;
             let isValidGTIN = true;
 
-            isValidGTIN = checkValidEan(item.ean);
+            isValidGTIN = orderUtils.checkValidEan(item.ean);
             if (isValidGTIN) {
               validGTIN += 1;
             }
@@ -202,7 +146,7 @@ export default {
 
                 if (!parentProductIsPrinted) {
                   let itemQuantityArray = product.items.map((item) => {
-                      return checkValidEan(item.ean) ? item.sellers[0].commertialOffer.AvailableQuantity : 0;
+                      return orderUtils.checkValidEan(item.ean) ? item.sellers[0].commertialOffer.AvailableQuantity : 0;
                   })
 
                   let sumQuantity = itemQuantityArray.reduce(
@@ -333,7 +277,7 @@ export default {
         }
       })
 
-      let dataLengowConfig = await graphQLClient.request(lengowQuery)
+      let dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
 
 
 
@@ -344,7 +288,7 @@ export default {
 
       if (dataLengowConfig.wimLengowConfig.feedFormat == 'xml') {
         res.set('Content-Type', 'text/xml')
-        ctx.response.body = convertToXML(JSON.parse(response.data.toString()));
+        ctx.response.body = orderUtils.convertToXML(JSON.parse(response.data.toString()));
 
       }
       else {

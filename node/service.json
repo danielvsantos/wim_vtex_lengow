@@ -4,6 +4,14 @@
     "ttl": 300,
     "timeout": 40,
     "routes": {
+      "invoiceOrderEndpoint":{
+        "path": "/integration/lengow/pub/orders/:marketplaceorderId/invoice",
+        "public": true
+      },
+      "cancelOrderEndpoint":{
+        "path": "/integration/lengow/pvt/orders/:marketplaceorderId/cancel",
+        "public": true
+      },
       "createFeed": {
         "path": "/integration/lengow/createFeed",
         "public": true

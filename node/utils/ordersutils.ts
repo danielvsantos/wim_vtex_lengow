@@ -1,3 +1,6 @@
+import { errorResponse } from './error'
+import { validate } from 'gtin'
+
 const axios = require("axios");
 
 export const setDefaultHeaders = (res) => {
@@ -79,8 +82,9 @@ export const formatLengowDeliveryAddressToVTEX = (deliveryAddress) => {
 }
 
 
-export const formatSimulationToOrderVTEX = (account,simulationData,paymentData,lengowOrderData) => {
+export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,paymentData,lengowOrderData,dataLengowConfig) => {
     let logisticData = []
+    paymentData.affiliateID = dataLengowConfig.wimLengowConfig.prefixAffiliateID
 
     simulationData.logisticsInfo.forEach(sla => {
         let slaData = {
@@ -97,9 +101,10 @@ export const formatSimulationToOrderVTEX = (account,simulationData,paymentData,l
     });
     
     let new_order_params = [{
-        'marketplaceOrderId' : lengowOrderData.marketplace_order_id,
-        'marketplaceServicesEndpoint' : `http://${account}.myvtex.com/integration/lengow/orderendpoint`,
-        'marketplacePaymentValue' : lengowOrderData.total_order * 100,
+        'marketplaceOrderId' : lengowOrderData.marketplace_order_id+'-EO'+Math.floor((Math.random() * 100) + 1),
+        'marketplaceServicesEndpoint' : `http://${account}.myvtex.com/integration/lengow/`,
+        //'marketplacePaymentValue' : lengowOrderData.total_order * 100,
+        'marketplacePaymentValue': totalOrder,
         'items' : simulationData.items,
         'clientProfileData' : formatLengowCustomerToVTEX(lengowOrderData.packages[0].delivery,lengowOrderData.billing_address),
         'shippingData' : {
@@ -141,6 +146,49 @@ export const getPaymentData = async(account,dataLengowConfig,authToken)=>{
         paymentReturn = vtexPayments[0];
     }
     return paymentReturn;
+}
+
+export const createSafePost = (callback: Function) => {
+    return async (ctx) => {
+      const { request: req, response: res, vtex: ioContext } = ctx
+  
+      try {
+        const { status, data, extract, contentType } = await callback(req, res, ioContext)
+        res.status = status
+        res.set('Cache-Control', 'no-cache')
+        res.body = extract ? data : { data }
+        res.set('Content-Type', contentType ? contentType : 'application/json')
+      } catch (err) {
+        const errorMessage = `Error processing ${callback.name}`
+        const errorRes = errorResponse(err)
+  
+        res.set('Cache-Control', 'no-cache')
+        res.set('Content-Type', 'application/json')
+        res.status = err.response ? err.response.status : 500
+        res.body = { error: errorRes }
+  
+        console.error(errorMessage, errorRes)
+  
+      }
+    }
+  }
+
+export const convertToXML = (object) => {
+    var convert = require('xml-js');
+    var options = { compact: true, ignoreComment: true, spaces: 4 };
+    let result = convert.json2xml({ catalogue: object }, options);
+  
+    result = `<?xml version="1.0" encoding="utf-8"?>` + result
+  
+    return result;
+}
+
+export const checkValidEan = (ean) => {
+    let isValidGTIN = false;
+    try {
+      isValidGTIN = validate(ean);
+    } catch (e) { }
+    return isValidGTIN;
 }
 
 
