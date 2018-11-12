@@ -2,7 +2,7 @@
     "stack": "nodejs",
     "memory": 512,
     "ttl": 300,
-    "timeout": 40,
+    "timeout": 3600,
     "routes": {
       "invoiceOrderEndpoint":{
         "path": "/integration/lengow/pub/orders/:marketplaceorderId/invoice",

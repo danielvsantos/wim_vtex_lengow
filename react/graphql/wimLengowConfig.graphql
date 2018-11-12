@@ -15,5 +15,6 @@ query{
     listExludedSkus,
     mappingOrderStatus,
     feedFormat,
+    numberDaysImportOrders
   }
 }

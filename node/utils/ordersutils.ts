@@ -1,7 +1,18 @@
 import { errorResponse } from './error'
 import { validate } from 'gtin'
+import { GraphQLClient } from 'graphql-request'
+
 
 const axios = require("axios");
+const querystring = require('querystring');
+const delay = require('delay');
+
+const LENGOW_API_URL = 'api.lengow.io';
+const LENGOW_API_SANDBOX_URL = 'api.lengow.net';
+const LENGOW_API_NUM_RETRIES = 3;
+const LENGOW_API_RETRY_WAIT_TIME = 1000;
+export const LENGOW_ORDERS_PER_PAGE = 50
+export const LENGOW_FULLFILLED_STATUS_ORDERS = ['waiting_shipment','shipped','closed']
 
 export const setDefaultHeaders = (res) => {
     res.set('Access-Control-Allow-Methods', 'POST, GET')
@@ -32,7 +43,12 @@ export const getAjaxData = async (options) => {
     if(response && (response.data || response.headers)){
         return response;
     }else if(response && response.error){
-        return {error : response.error.response.data}
+        if(response.error.response && typeof response.error.response.data != "undefined"){
+            return {error : response.error.response.data}
+        }else{
+            return {error : response.error}
+        }
+        
     }else{
         return false;
     }
@@ -63,6 +79,67 @@ export const formatLengowCustomerToVTEX = (deliveryAddress,billingAddress) => {
     }
 
     return customerData;
+}
+
+export const getLengowToken = async (ctx,dataLengowConfig) => {
+    const {vtex: ioContext} = ctx
+    const {account, authToken} = ioContext
+
+    let lengowURL = getLengowURL(dataLengowConfig)
+
+    let optionsGetLengowToken = {
+        url: `http://${lengowURL}/access/get_token`,
+        headers: {
+            'Proxy-Authorization': authToken,
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        data: querystring.stringify({
+            access_token:dataLengowConfig.wimLengowConfig.apiKey,
+            secret:dataLengowConfig.wimLengowConfig.apiSecret
+        }),
+        operation: "post"
+    }
+
+    let sucessCall = false
+    let lengowToken = {}
+    for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
+        if(!sucessCall){
+            lengowToken = await getAjaxData(optionsGetLengowToken);
+            if(typeof lengowToken.error != "undefined"){
+                console.log('Sleeping on error Get Token '+i+' zZZzzZZ...')
+                //WE MUST WAIT AT LEAST ONE SECOND BECAUSE LENGOW DON'T LIKE SIMULTANEOUS API CALLS AND FAIL (FALSE 500)...
+                await delay(LENGOW_API_RETRY_WAIT_TIME);
+            }else{
+                sucessCall = true;
+            }
+        }
+    }
+
+    return lengowToken;
+}
+
+export const getAddonConfig = async(ctx) => {
+    const {request: req, response: res,vtex: ioContext} = ctx
+    const {account, authToken} = ioContext
+
+    const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
+
+    const graphQLClient = new GraphQLClient(endpoint, {
+        headers: {
+            'Authorization': authToken,
+        }
+    })
+
+    let dataLengowConfig = await graphQLClient.request(lengowConfig)
+    return dataLengowConfig;
+}
+
+export const getLengowURL = (dataLengowConfig) => {
+    let lengowURL = LENGOW_API_SANDBOX_URL;
+    if(!dataLengowConfig.wimLengowConfig.boolSandbox){
+        lengowURL = LENGOW_API_URL
+    }
+    return lengowURL;
 }
 
 export const formatLengowDeliveryAddressToVTEX = (deliveryAddress) => {
@@ -101,8 +178,9 @@ export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,pa
     });
     
     let new_order_params = [{
-        'marketplaceOrderId' : lengowOrderData.marketplace_order_id+'-EO'+Math.floor((Math.random() * 100) + 1),
-        'marketplaceServicesEndpoint' : `http://${account}.myvtex.com/integration/lengow/`,
+        'marketplaceOrderId' : lengowOrderData.marketplace_order_id+'-MKP-'+lengowOrderData.marketplace,
+        //TODO CAMBIAR EL DMARTIN PARA QUE NO TENGA WORKSPACE
+        'marketplaceServicesEndpoint' : `http://dmartin--${account}.myvtex.com/integration/lengow/`,
         //'marketplacePaymentValue' : lengowOrderData.total_order * 100,
         'marketplacePaymentValue': totalOrder,
         'items' : simulationData.items,
@@ -191,6 +269,206 @@ export const checkValidEan = (ean) => {
     return isValidGTIN;
 }
 
+export const changeLengowOrderStatus = async (idOrder,marketplace,status,lengowToken,authToken,dataLengowConfig,trackingNumber = null, trackingURL = null, carrier=null) => {
+     
+    let lengowStatusOrders = {
+        marketplace_order_id : idOrder,
+        account_id: lengowToken.account_id,
+        marketplace,
+        action_type: status
+    }
+
+    if(trackingNumber){
+        lengowStatusOrders.tracking_number = trackingNumber;
+    }
+    if(trackingURL){
+        lengowStatusOrders.tracking_url = trackingURL;
+    }
+    if(carrier){
+        lengowStatusOrders.carrier = carrier
+    }
+    if(status == 'cancel'){
+        //This field reason is not documented on http://docs.lengow.io/ at today 2017-11-07 but API response error on cancel about reason mandatory
+        lengowStatusOrders.reason = 'Cancel Order'
+    }
+
+    let optionsChangeStatusOrder = {
+        url: `http://${getLengowURL(dataLengowConfig)}/v3.0/orders/actions/`,
+        headers: {
+            'Authorization': lengowToken.token,
+            'Proxy-Authorization': authToken
+        },
+        operation: 'post',
+        data: lengowStatusOrders
+    }
+
+    console.log('PARA CAMBIAR EL STATUS',JSON.stringify(optionsChangeStatusOrder,null,2))
+    let sucessCall = false
+    let lengowResponse = {}
+    for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
+        if(!sucessCall){
+            lengowResponse = await getAjaxData(optionsChangeStatusOrder);
+            if(typeof lengowResponse.error != "undefined"){
+                console.log('Sleeping on error Change Status '+i+' zZZzzZZ...')
+                //WE MUST WAIT AT LEAST ONE SECOND BECAUSE LENGOW DON'T LIKE SIMULTANEOUS API CALLS AND FAIL (FALSE 500)...
+                await delay(LENGOW_API_RETRY_WAIT_TIME);
+            }else{
+                sucessCall = true;
+            }
+        }
+    }
+    
+    return lengowResponse;
+}
+
+export const changeLengowMerchantOrderID = async (marketplace_order_id,merchant_order_id,marketplace,lengowToken,authToken,dataLengowConfig) => {
+     
+    let lengowStatusOrders = {
+        marketplace_order_id,
+        account_id: lengowToken.account_id,
+        marketplace,
+        'merchant_order_id': [merchant_order_id]
+    }
+
+    let optionsChangeMOIOrder = {
+        url: `http://${getLengowURL(dataLengowConfig)}/v3.0/orders/moi/`,
+        headers: {
+            'Authorization': lengowToken.token,
+            'Proxy-Authorization': authToken
+        },
+        data: lengowStatusOrders,
+        operation: 'patch'
+    }
+
+    let sucessCall = false
+    let lengowResponse = {}
+    for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
+        if(!sucessCall){
+            lengowResponse = await getAjaxData(optionsChangeMOIOrder);
+            if(typeof lengowResponse.error != "undefined"){
+                console.log('Sleeping on error MOI '+i+' zZZzzZZ...')
+                //WE MUST WAIT AT LEAST ONE SECOND BECAUSE LENGOW DON'T LIKE SIMULTANEOUS API CALLS AND FAIL (FALSE 500)...
+                await delay(LENGOW_API_RETRY_WAIT_TIME);
+            }else{
+                sucessCall = true;
+            }
+        }
+    }
+    return lengowResponse;
+}
+
+
+export const getLengowOrders = async (lengowToken,authToken, dataLengowConfig, marketPlaceOrderId = null,pageNumber = 1, pageSize = 1) => {
+    let dateFilter = new Date();
+    dateFilter.setDate(dateFilter.getDate()-getDateLimit(dataLengowConfig));
+
+    let lengowFilterOrders = {
+        account_id : lengowToken.account_id,
+        page:pageNumber,
+        page_size:pageSize,
+        ordering: '-marketplace_order_date'
+    }
+    if(marketPlaceOrderId){
+        lengowFilterOrders.marketplace_order_id = marketPlaceOrderId
+    }else{
+        lengowFilterOrders.updated_from = dateFilter.toISOString().replace(/\..+/, '+00:00')
+        lengowFilterOrders.merchant_order_id = '' //Si no está importado, no tiene merchant_order_id
+    }
+    
+    let optionsGetLengowOrders = {
+        url: `http://${getLengowURL(dataLengowConfig)}/v3.0/orders/?${querystring.stringify(lengowFilterOrders)}`,
+        headers: {
+            'Authorization': lengowToken.token,
+            'Proxy-Authorization': authToken
+        }
+    }
+
+    let lengowOrders = {
+        results: undefined,
+        next: undefined
+    }
+
+    //WE WILL RETRY A NUMBER OF TIMES BECAUSE LENGOW API MAYBE IS RETURNING A FALSE 500 BECAUSE THEY DON'T LIKE SIMULTANEOUS API CALLS
+    for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
+        if(typeof lengowOrders.results == "undefined"){
+            lengowOrders = await getAjaxDataByGET(optionsGetLengowOrders);
+            console.log('Sleeping on error Get Orders '+i+' zZZzzZZ...')
+            //WE MUST WAIT AT LEAST ONE SECOND BECAUSE LENGOW DON'T LIKE SIMULTANEOUS API CALLS AND FAIL (FALSE 500)...
+            await delay(LENGOW_API_RETRY_WAIT_TIME);
+        }
+    }
+    if(typeof lengowOrders.results != "undefined"){
+        
+        if(lengowOrders.next){
+            let nextResults = await getLengowOrders(lengowToken,authToken, dataLengowConfig, marketPlaceOrderId,pageNumber+1,pageSize)
+            lengowOrders.results.push(...nextResults.results)
+        }
+    }
+
+    return lengowOrders;
+}
+
+export const getOptionsSimulateCart = (account,authToken,dataLengowConfig) => {
+    let optionsSimulateCart = {
+        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orderForms/simulation?sc=${dataLengowConfig.wimLengowConfig.salesChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
+        headers: {
+            'VtexIdclientAutCookie': authToken,
+            'Proxy-Authorization': authToken,
+            'X-Vtex-Proxy-To': `https://${account}.myvtex.com`
+        },
+        operation: 'post',
+        data: {}
+    }
+
+    return optionsSimulateCart;
+}
+
+export const getOptionsInsertOrder = (account,authToken,dataLengowConfig) => {
+    let optionsInsertOrder = {
+        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orders?sc=${dataLengowConfig.wimLengowConfig.salesChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
+        headers: {
+            'VtexIdclientAutCookie': authToken,
+            'Proxy-Authorization': authToken,
+            'X-Vtex-Proxy-To': `https://${account}.myvtex.com`
+        },
+        operation: 'post',
+        data: {}
+    }
+
+    return optionsInsertOrder
+}
+
+
+export const getOptionsDispatchOrder = (vtexIdOrder,account,authToken,dataLengowConfig) => {
+    let optionsInsertOrder = {
+        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orders/${vtexIdOrder}/fulfill?sc=${dataLengowConfig.wimLengowConfig.salesChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
+        headers: {
+            'VtexIdclientAutCookie': authToken,
+            'Proxy-Authorization': authToken,
+            'X-Vtex-Proxy-To': `https://${account}.myvtex.com`
+        },
+        operation: 'post',
+        data: {
+            marketplaceOrderId:vtexIdOrder
+        }
+    }
+
+    return optionsInsertOrder
+}
+
+export const getDateLimit = (dataLengowConfig) => {
+    let days = 30
+    if(dataLengowConfig.wimLengowConfig.numberDaysImportOrders){
+        if(dataLengowConfig.wimLengowConfig.numberDaysImportOrders < 1 ){
+            days = 1;
+        }else if(dataLengowConfig.wimLengowConfig.numberDaysImportOrders > 100){
+            days = 100;
+        }else{
+            days = dataLengowConfig.wimLengowConfig.numberDaysImportOrders
+        }
+    }
+    return days;
+}
 
 export const lengowConfig = `query{
     wimLengowConfig{
@@ -210,6 +488,7 @@ export const lengowConfig = `query{
       mappingOrderStatus,
       feedFormat,
       lastDateGenerated,
+      numberDaysImportOrders
     }
   }
 `

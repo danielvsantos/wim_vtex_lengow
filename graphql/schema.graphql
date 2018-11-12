@@ -20,6 +20,7 @@ type wimLengowConfig{
 	mappingOrderStatus: String,
 	feedFormat: String,
 	lastDateGenerated: String,
+	numberDaysImportOrders: Int
 
 }
 
@@ -39,7 +40,8 @@ input wimLengowConfigInput{
 	listExludedSkus: String,
 	mappingOrderStatus: String,
 	flagCheckValidGTIN: Boolean,
-	feedFormat: String
+	feedFormat: String,
+	numberDaysImportOrders: Int
 }
 
 type wimLengowSKU{

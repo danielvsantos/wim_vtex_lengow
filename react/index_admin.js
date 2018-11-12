@@ -26,15 +26,14 @@ class WimVtexLengowSetup extends Component {
                 vtexApiToken: '',
                 prefixAffiliateID: 'LNGW',
                 boolSandbox: true,
-
-                salesChannel: false,
+                salesChannel: null,
                 flagExportDisableSKU: true,
                 flagExportOutOfStockSKU: true,
                 listExludedSkus: '',
-
+                numberDaysImportOrders: 30,
                 feedFormat: 'json'
             },
-                loading: this.props.wimLengowConfig,
+                loading: this.props.wimLengowConfig.loading,
                 disabled_save: false
         }
 
@@ -78,22 +77,26 @@ class WimVtexLengowSetup extends Component {
     }
 
     componentWillReceiveProps(nextProps){
-       if (!nextProps.wimLengowConfig.loading && this.props.wimLengowConfig.loading && nextProps.wimLengowConfig.wimLengowConfig) {
+       if (!nextProps.wimLengowConfig.loading && this.props.wimLengowConfig.loading) {
             let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
-            this.setState({
-                lengow_config: lengowConfig,
-                loading: nextProps.wimLengowConfig.loading
-            })
+            if(nextProps.wimLengowConfig.wimLengowConfig){
+                this.setState({
+                    lengow_config: lengowConfig,
+                    loading: nextProps.wimLengowConfig.loading
+                })
+            }else{
+                this.setState({
+                    loading: nextProps.wimLengowConfig.loading
+                })
+            }
 
         }
       }
 
 
     render() {
-        console.log(this.props);
-        
-        if(this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.state.loading ){
+        if(this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.state.loading){
             return (
                 <div>AGUARDE</div>
             )

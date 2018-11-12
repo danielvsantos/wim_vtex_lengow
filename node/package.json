@@ -8,6 +8,10 @@
       "graphql-request": "^1.8.2",
       "cookie": "^0.3.1",
       "xml-js": "^1.6.8",
-      "gtin": "^0.3.0"
+      "gtin": "^0.3.0",
+      "koa-bodyparser": "^4.2.1",
+      "koa-body": "^4.0.4",
+      "co-body": "^4.2.0",
+      "delay":"^4.1.0"
     }
   }

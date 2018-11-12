@@ -62,6 +62,9 @@ export default class LengowConfig extends React.Component{
                         <div className="mb5">
                             <Toggle className="tc pa2" label="Sandbox" id="boolSandbox" name="boolSandbox" checked={lengow_config.boolSandbox} onChange={(e) => this.handleInputChange(e,"boolSandbox")}/>
                         </div>
+                        <div className="mb5">
+                            <Input className="tc pa2" label="Number of Days to recover orders from today (max 100)" type="text" id="numberDaysImportOrders" name="numberDaysImportOrders" value={lengow_config.numberDaysImportOrders} onChange={this.handleInputChange}/>
+                        </div>
 
                         <div className="mb5">
                             <Dropdown className="tc pa2" 

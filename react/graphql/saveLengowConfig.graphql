@@ -15,5 +15,6 @@ mutation saveLengowConfig($data: wimLengowConfigInput){
     listExludedSkus,
     mappingOrderStatus,
     feedFormat,
+    numberDaysImportOrders
   }
 }
