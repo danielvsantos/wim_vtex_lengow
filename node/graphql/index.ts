@@ -80,6 +80,26 @@ const fileName = `wimVtexLengow.txt`
             //console.log("URL:", optionsClientInfo.url);
             //console.log(object)
             return response.data
+        },
+        ordersLengow: async (_,args,ctx) => {
+            const {vtex: ioContext} = ctx
+            const vBase = VBaseClient(ioContext,`ordersImported.txt`)
+
+            const response = await vBase.getFile().catch(notFound())
+
+            if(response.data){
+                return JSON.parse(response.data.toString())
+            }
+        },
+        logsLengow: async (_,args,ctx) => {
+            const {vtex: ioContext} = ctx
+            const vBase = VBaseClient(ioContext,`logsLengow.txt`)
+
+            const response = await vBase.getFile().catch(notFound())
+
+            if(response.data){
+                return JSON.parse(response.data.toString())
+            }
         }
     }
   }

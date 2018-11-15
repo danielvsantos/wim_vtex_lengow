@@ -34,6 +34,8 @@ export default class LengowConfig extends React.Component{
             
             
                     <div className="w-50-ns center">
+                        
+
                         <h2>Lengow Config</h2>
                         
                         <div className="mb5">

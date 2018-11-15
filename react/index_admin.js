@@ -1,15 +1,22 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import {compose, graphql} from 'react-apollo'
+import { compose, graphql } from 'react-apollo'
 
 
-import { Button } from 'vtex.styleguide'
+import { Button, Tabs, Tab } from 'vtex.styleguide'
 
 import LengowConfig from './components/LengowConfig'
 
 import wimLengowConfig from './graphql/wimLengowConfig.graphql'
 import saveLengowConfig from './graphql//saveLengowConfig.graphql'
 import salesChannel from './graphql/salesChannel.graphql'
+
+import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+import LengowStats from './components/LengowStats';
+import LengowLogs from './components/LengowLogs';
+
+
+
 
 
 class WimVtexLengowSetup extends Component {
@@ -33,30 +40,33 @@ class WimVtexLengowSetup extends Component {
                 numberDaysImportOrders: 30,
                 feedFormat: 'json'
             },
-                loading: this.props.wimLengowConfig.loading,
-                disabled_save: false
+            loading: this.props.wimLengowConfig.loading,
+            disabled_save: false,
+            currentTab: 1
         }
 
-        if(!this.props.wimLengowConfig.loading){
+        if (!this.props.wimLengowConfig.loading) {
             this.state.loading = true;
             this.props.wimLengowConfig.refetch().then(res => {
-                let lengow_config  = res.data.wimLengowConfig;
-                this.setState({lengow_config, loading: false});
+                let lengow_config = res.data.wimLengowConfig;
+                this.setState({ lengow_config, loading: false });
             });
         }
+
+        this.handleTabChange = this.handleTabChange.bind(this)
 
 
     }
 
     handleInputChange = (name, value) => {
-        let lengow_config = Object.assign({}, this.state.lengow_config); 
+        let lengow_config = Object.assign({}, this.state.lengow_config);
         lengow_config[name] = value;
         console.log(lengow_config, name, value);
-        this.setState({lengow_config});
+        this.setState({ lengow_config });
     }
 
     saveProductForm = (event) => {
-        this.setState({disabled_save: true})
+        this.setState({ disabled_save: true })
         window.postMessage({ action: { type: 'START_LOADING' } }, '*')
 
         let lengow_config = this.state.lengow_config;
@@ -67,41 +77,47 @@ class WimVtexLengowSetup extends Component {
             },
         }
 
-        
-            this.props.saveLengowConfig(options).then((res) => {
-                this.setState({disabled_save: false})
-            })
-        
+
+        this.props.saveLengowConfig(options).then((res) => {
+            this.setState({ disabled_save: false })
+        })
+
 
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
     }
 
-    componentWillReceiveProps(nextProps){
-       if (!nextProps.wimLengowConfig.loading && this.props.wimLengowConfig.loading) {
+    componentWillReceiveProps(nextProps) {
+        if (!nextProps.wimLengowConfig.loading && this.props.wimLengowConfig.loading) {
             let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
-            if(nextProps.wimLengowConfig.wimLengowConfig){
+            if (nextProps.wimLengowConfig.wimLengowConfig) {
                 this.setState({
                     lengow_config: lengowConfig,
                     loading: nextProps.wimLengowConfig.loading
                 })
-            }else{
+            } else {
                 this.setState({
                     loading: nextProps.wimLengowConfig.loading
                 })
             }
 
         }
-      }
+    }
+
+    handleTabChange(tabIndex) {
+        this.setState({
+            currentTab: tabIndex,
+        })
+    }
 
 
     render() {
-        if(this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.state.loading){
+        if (this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.state.loading) {
             return (
                 <div>AGUARDE</div>
             )
         }
-        console.log("RENDER", this.state.lengow_config );
+        console.log("RENDER", this.state.lengow_config);
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
 
         const textButton = (!this.state.id_wim_lengow_config) ? 'SAVE' : 'UPDATE';
@@ -109,14 +125,24 @@ class WimVtexLengowSetup extends Component {
         return (
             <div className="font-display dark-gray flex flex-wrap justify-center">
                 <div className="w-100 w-90-m w-60-l w-60-ns">
-                
-                <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={ this.props.salesChannel.salesChannel} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
-            
-                <div className="w-50-ns center">
-                    <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
-                            {textButton}
-                    </Button>
-                </div>
+
+                    <Tabs>
+                        <Tab label="Config" active={this.state.currentTab === 1} onClick={() => this.handleTabChange(1)}>
+                            <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={ this.props.salesChannel.salesChannel} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
+
+                            <div className="w-50-ns center">
+                                <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
+                                    {textButton}
+                                </Button>
+                            </div>
+                        </Tab>
+                        <Tab label="Stats" active={this.state.currentTab === 2} onClick={() => this.handleTabChange(2)}>
+                            <LengowStats />
+                        </Tab>
+                        <Tab label="Logs" active={this.state.currentTab === 3} onClick={() => this.handleTabChange(3)}>
+                            <LengowLogs/>
+                        </Tab>
+                    </Tabs>
                 </div>
             </div>
         )
@@ -131,9 +157,9 @@ WimVtexLengowSetup.propTypes = {
 */
 
 export default compose(
-    graphql(wimLengowConfig, {name: 'wimLengowConfig'}),
-    graphql(salesChannel, {name: 'salesChannel'}),
-    graphql(saveLengowConfig, {name: 'saveLengowConfig'}),
+    graphql(wimLengowConfig, { name: 'wimLengowConfig' }),
+    graphql(salesChannel, { name: 'salesChannel' }),
+    graphql(saveLengowConfig, { name: 'saveLengowConfig' }),
 )(WimVtexLengowSetup)
 
 

@@ -1,0 +1,19 @@
+{
+    "name": "wim_vtex_lengow",
+    "version": "1.0.0",
+    "author": "webimpacto",
+    "license": "MIT",
+    "dependencies": {
+      "react": "^16.3.2",
+      "react-apollo": "^2.1.4",
+      "@vtex/styleguide": "^2.0.0-rc.35",
+      "jquery": "^3.3.1",
+      "react-chartjs-2": "2.7.4",
+      "chart.js": "2.7.3",
+      "react-datepicker": "1.8.0"
+    },
+    "devDependencies": {
+      "@types/react": "^16.3.14"
+    }
+  }
+  

@@ -160,6 +160,7 @@ export const formatLengowDeliveryAddressToVTEX = (deliveryAddress) => {
 
 
 export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,paymentData,lengowOrderData,dataLengowConfig) => {
+    let debug = false;
     let logisticData = []
     paymentData.affiliateID = dataLengowConfig.wimLengowConfig.prefixAffiliateID
 
@@ -178,11 +179,12 @@ export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,pa
     });
     
     let new_order_params = [{
-        'marketplaceOrderId' : lengowOrderData.marketplace_order_id+'-MKP-'+lengowOrderData.marketplace,
+        'isCreatedAsync': true,
+        'marketplaceOrderId' : (lengowOrderData.marketplace_order_id+'-MKP-'+lengowOrderData.marketplace) + ((debug) ? `-debug-${Math.floor((Math.random()*100)+1)}` : ''),
         //TODO CAMBIAR EL DMARTIN PARA QUE NO TENGA WORKSPACE
         'marketplaceServicesEndpoint' : `http://dmartin--${account}.myvtex.com/integration/lengow/`,
-        //'marketplacePaymentValue' : lengowOrderData.total_order * 100,
-        'marketplacePaymentValue': totalOrder,
+        'marketplacePaymentValue' : lengowOrderData.total_order * 100,
+        //'marketplacePaymentValue': totalOrder,
         'items' : simulationData.items,
         'clientProfileData' : formatLengowCustomerToVTEX(lengowOrderData.packages[0].delivery,lengowOrderData.billing_address),
         'shippingData' : {
@@ -359,20 +361,23 @@ export const changeLengowMerchantOrderID = async (marketplace_order_id,merchant_
 
 
 export const getLengowOrders = async (lengowToken,authToken, dataLengowConfig, marketPlaceOrderId = null,pageNumber = 1, pageSize = 1) => {
+    let debug = false;
     let dateFilter = new Date();
     dateFilter.setDate(dateFilter.getDate()-getDateLimit(dataLengowConfig));
 
     let lengowFilterOrders = {
         account_id : lengowToken.account_id,
         page:pageNumber,
-        page_size:pageSize,
+        page_size: (debug) ? 1 : pageSize,
         ordering: '-marketplace_order_date'
     }
     if(marketPlaceOrderId){
         lengowFilterOrders.marketplace_order_id = marketPlaceOrderId
     }else{
         lengowFilterOrders.updated_from = dateFilter.toISOString().replace(/\..+/, '+00:00')
-        lengowFilterOrders.merchant_order_id = '' //Si no está importado, no tiene merchant_order_id
+        if(!debug){
+            lengowFilterOrders.merchant_order_id = '' //Si no está importado, no tiene merchant_order_id
+        }
     }
     
     let optionsGetLengowOrders = {
@@ -397,11 +402,15 @@ export const getLengowOrders = async (lengowToken,authToken, dataLengowConfig, m
             await delay(LENGOW_API_RETRY_WAIT_TIME);
         }
     }
-    if(typeof lengowOrders.results != "undefined"){
-        
-        if(lengowOrders.next){
-            let nextResults = await getLengowOrders(lengowToken,authToken, dataLengowConfig, marketPlaceOrderId,pageNumber+1,pageSize)
-            lengowOrders.results.push(...nextResults.results)
+
+    // WE PAGINATE IF NOT DEBUG
+    if(!debug){
+        if(typeof lengowOrders.results != "undefined"){
+            
+            if(lengowOrders.next){
+                let nextResults = await getLengowOrders(lengowToken,authToken, dataLengowConfig, marketPlaceOrderId,pageNumber+1,pageSize)
+                lengowOrders.results.push(...nextResults.results)
+            }
         }
     }
 

@@ -44,6 +44,20 @@ input wimLengowConfigInput{
 	numberDaysImportOrders: Int
 }
 
+type orderLengow{
+	orderID: String,
+	marketPlace: String,
+	total: Float,
+	date: String
+}
+
+type logLengow{
+	orderID: String,
+	type: String,
+	msg: String,
+	date: String
+}
+
 type wimLengowSKU{
 	id: ID! 
 	sku: String
@@ -62,7 +76,9 @@ type wimLengowOrderStatus{
 
 type Query {
   	wimLengowConfig: wimLengowConfig,
-	salesChannel: [salesChannel]
+	salesChannel: [salesChannel],
+	ordersLengow: [orderLengow],
+	logsLengow: [logLengow]
 }
 
 type Mutation{
