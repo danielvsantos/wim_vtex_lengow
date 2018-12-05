@@ -1,5 +1,4 @@
 import { errorResponse } from './error'
-import { validate } from 'gtin'
 import { GraphQLClient } from 'graphql-request'
 
 
@@ -252,24 +251,6 @@ export const createSafePost = (callback: Function) => {
       }
     }
   }
-
-export const convertToXML = (object) => {
-    var convert = require('xml-js');
-    var options = { compact: true, ignoreComment: true, spaces: 4 };
-    let result = convert.json2xml({ catalogue: object }, options);
-  
-    result = `<?xml version="1.0" encoding="utf-8"?>` + result
-  
-    return result;
-}
-
-export const checkValidEan = (ean) => {
-    let isValidGTIN = false;
-    try {
-      isValidGTIN = validate(ean);
-    } catch (e) { }
-    return isValidGTIN;
-}
 
 export const changeLengowOrderStatus = async (idOrder,marketplace,status,lengowToken,authToken,dataLengowConfig,trackingNumber = null, trackingURL = null, carrier=null) => {
      

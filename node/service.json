@@ -1,6 +1,6 @@
 {
     "stack": "nodejs",
-    "memory": 512,
+    "memory": 2048,
     "ttl": 300,
     "timeout": 3600,
     "routes": {

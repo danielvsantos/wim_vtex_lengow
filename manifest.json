@@ -46,6 +46,13 @@
     },
     {
       "name": "outbound-access",
+      "attrs": {
+        "host": "{{account}}.vtexcommercestable.com.br",
+        "path": "/XMLData/*"
+      }
+    },
+    {
+      "name": "outbound-access",
       "attrs":{
         "host": "api.vtex.com",
         "path":"*"
