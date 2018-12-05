@@ -42,6 +42,10 @@ export const getProductsXML = async (account, authToken) => {
             //console.log("ERROR?: ", error);
         });
 
+    if(!response.data){
+        return false;
+    }
+
       return JSON.parse(convertToJson(response.data)).products.product;
 }
 

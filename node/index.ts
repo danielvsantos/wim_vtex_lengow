@@ -50,6 +50,14 @@ export default {
       const { response: res, vtex: ioContext } = ctx
       const { account, authToken } = ioContext
       setDefaultHeaders(res);
+
+      const vbaseLogsLengow = VBaseClient(ioContext, `logsLengow.txt`)
+      const responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
+
+      var logsLengowData = []
+      if(responseLogsLengow.data){
+          logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+      }
       
 
       const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
@@ -63,6 +71,19 @@ export default {
       let dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
 
       let xmlProducts = await getProductsXML(account, authToken)
+      if(!xmlProducts){
+        logsLengowData.push({
+            orderID: 'XML-GENERATION', 
+            type: 'error', 
+            msg: `There's no product on Feed`, 
+            date: moment() 
+        })
+        vbaseLogsLengow.saveFile(logsLengowData);
+        ctx.response.body = {
+            result: "There's no product on Feed"
+        }
+        return false;
+      }
       
       let products = [];
 
