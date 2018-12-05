@@ -75,7 +75,6 @@ export default {
       let query = '';
 
       for(let x=0; x < xmlProducts.length; x++ ){
-        console.log(xmlProducts[x].id_product._cdata)
         
         query+= 'fq=productId:'+xmlProducts[x].id_product._cdata+'&'
         count++;
