@@ -39,10 +39,10 @@ export const getProductsXML = async (account, authToken) => {
 
       let response = await axios.get(xmlRequestInfo.url, {headers: xmlRequestInfo.headers})
         .catch(function(error){
-            //console.log("ERROR?: ", error);
+            return false;
         });
 
-    if(!response.data){
+    if(!response || !response.data){
         return false;
     }
 
