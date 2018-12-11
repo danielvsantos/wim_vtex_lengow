@@ -94,12 +94,12 @@ class LengowLogs extends React.Component {
 
                 <div>
                     <h2>Logs</h2>   
-                    {this.state.logsData.length >0 && this.state.logsData.map((item,key) => {
+                    {this.state.logsData && this.state.logsData.length >0 && this.state.logsData.map((item,key) => {
                         return (
                             <p key={key} className={colorError(item.type)}> {item.date} - {item.type}: {item.msg} </p>
                         )
                     })}
-                    {this.state.logsData.length == 0 && 
+                    {this.state.logsData &&  this.state.logsData.length == 0 && 
                         <p> There's no exists logs on the selected day </p>
                      }
                 </div>

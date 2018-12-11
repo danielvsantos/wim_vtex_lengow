@@ -134,7 +134,7 @@ class LengowStats extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         
-        if (!nextProps.ordersLengow.loading && this.props.ordersLengow.loading) {
+        if (!nextProps.ordersLengow.loading && nextProps.ordersLengow.ordersLengow && this.props.ordersLengow.loading) {
             console.log("Pablooo",nextProps.ordersLengow);
             ordersData = nextProps.ordersLengow.ordersLengow;
             

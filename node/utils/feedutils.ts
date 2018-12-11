@@ -28,8 +28,9 @@ export const checkValidEan = (ean) => {
 }
 
 export const getProductsXML = async (account, authToken) => {
+  
     var xmlRequestInfo = {
-        url: `http://${account}.vtexcommercestable.com.br/XMLData/lengow.xml`,
+        url: `http://${account}.vtexcommercestable.com.br/XMLData/lengow.xml?t=${new Date().getTime()}`,
         headers: {
             'VtexIdclientAutCookie': authToken,
             'Proxy-Authorization': authToken,
@@ -136,6 +137,8 @@ export const queryProduct = (salesChannel, from, to, category) => {
 
 export const formatProductFeed = (APIProductArray, dataLengowConfig, account) => {
     let numSKUSParent = 0;
+    let numSKUSSimple = 0;
+    let numSKUSChild = 0;
     let validGTIN = 0;
     let numSKUSItems = 0;
     let numSKUFeed = 0;
@@ -165,6 +168,7 @@ export const formatProductFeed = (APIProductArray, dataLengowConfig, account) =>
 
             if (uniqueItem) {
               product_type = 'simple'
+              numSKUSSimple++;
             }
             else {
               product_type = 'child'
@@ -229,6 +233,7 @@ export const formatProductFeed = (APIProductArray, dataLengowConfig, account) =>
             }
 
             if (product_type == 'child') {
+              numSKUSChild++;
               productAux['parent_id'] = product.productId
             }
 
@@ -261,6 +266,8 @@ export const formatProductFeed = (APIProductArray, dataLengowConfig, account) =>
       return {
           products,
           numSKUSParent,
+          numSKUSChild,
+          numSKUSSimple,
           validGTIN,
           numSKUSItems,
           numSKUFeed

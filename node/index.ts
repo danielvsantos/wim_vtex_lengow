@@ -6,7 +6,7 @@ import VBaseClient from './vbase'
 import { importOrders, changeOrderStatus } from './importorders'
 import * as orderUtils from './utils/ordersutils'
 import moment from 'moment'
-import {createFeed, formatProductFeed,  getCategoryQuery, followUpCategory, queryProduct, convertToXML, getProductsXML, checkValidEan} from './utils/feedutils'
+import {formatProductFeed, convertToXML, getProductsXML} from './utils/feedutils'
 import axios from 'axios'
 
 
@@ -91,6 +91,8 @@ export default {
       let numSKUSItems = 0;
       let validGTIN = 0;
       let numSKUFeed = 0;
+      let numSKUSSimple = 0;
+      let numSKUSChild = 0;
 
       let count = 0;
       let query = '';
@@ -116,6 +118,8 @@ export default {
          numSKUSItems += formatedProducts.numSKUSItems
          validGTIN += formatedProducts.validGTIN
          numSKUFeed += formatedProducts.numSKUFeed
+         numSKUSSimple += formatedProducts.numSKUSSimple
+         numSKUSChild += formatedProducts.numSKUSChild
 
           query='';
           count = 0;
@@ -135,6 +139,23 @@ export default {
 
       dataLengowConfig.wimLengowConfig.lastDateGenerated = date;
       await vBaseLengowConfig.saveFile(dataLengowConfig.wimLengowConfig)
+
+      let result = {
+        numSKUSItems,
+        numSKUSSimple,
+        numSKUSParent,
+        numSKUSChild,
+        validGTIN,
+        numSKUFeed
+      }
+
+      logsLengowData.push({
+        orderID: 'XML-GENERATION', 
+        type: 'success', 
+        msg: JSON.stringify(result), 
+        date: moment() 
+      })
+      vbaseLogsLengow.saveFile(logsLengowData);
       
       /*if(dataLengowConfig.wimLengowConfig.feedFormat=='xml'){
         result = convertToXML({product: products});
@@ -146,12 +167,7 @@ export default {
       }*/
 
       //ctx.response.body = result;
-      ctx.response.body = {
-        numSKUSItems,
-        numSKUSParent,
-        validGTIN,
-        numSKUFeed
-      }
+      ctx.response.body = result
 
       /*  
       let categoryQuery = getCategoryQuery(15);
