@@ -4,7 +4,7 @@
 
 type wimLengowConfig{
 	#id: ID!  
-	vtex_account: String,
+
 	account: String,
 	apiKey: String,
 	apiSecret: String,
@@ -20,13 +20,14 @@ type wimLengowConfig{
 	mappingOrderStatus: String,
 	feedFormat: String,
 	lastDateGenerated: String,
-	numberDaysImportOrders: Int
+	numberDaysImportOrders: Int,
+	domainShop: String
 
 }
 
 input wimLengowConfigInput{
 	#id: ID!  
-	vtex_account: String,
+
 	account: String,
 	apiKey: String,
 	apiSecret: String,
@@ -41,7 +42,8 @@ input wimLengowConfigInput{
 	mappingOrderStatus: String,
 	flagCheckValidGTIN: Boolean,
 	feedFormat: String,
-	numberDaysImportOrders: Int
+	numberDaysImportOrders: Int,
+	domainShop: String
 }
 
 type orderLengow{
@@ -77,6 +79,7 @@ type wimLengowOrderStatus{
 type Query {
   	wimLengowConfig: wimLengowConfig,
 	salesChannel: [salesChannel],
+	accountDomainHosts: [String]
 	ordersLengow: [orderLengow],
 	logsLengow: [logLengow]
 }

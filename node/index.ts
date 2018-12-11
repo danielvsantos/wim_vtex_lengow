@@ -109,11 +109,13 @@ export default {
          }
          let result = await axios.get(productSeachEndPoinut+query+`isAvailablePerSalesChannel_${dataLengowConfig.wimLengowConfig.salesChannel}:1`, {headers});
          
-         products = [...products, ...formatProductFeed(result.data,dataLengowConfig).products]
-         numSKUSParent = formatProductFeed(result.data,dataLengowConfig).numSKUSParent
-         numSKUSItems = formatProductFeed(result.data,dataLengowConfig).numSKUSItems
-         validGTIN = formatProductFeed(result.data,dataLengowConfig).validGTIN
-         numSKUFeed = formatProductFeed(result.data,dataLengowConfig).numSKUFeed
+         let formatedProducts =  formatProductFeed(result.data,dataLengowConfig, account)
+
+         products = [...products, ...formatedProducts.products]
+         numSKUSParent += formatedProducts.numSKUSParent
+         numSKUSItems += formatedProducts.numSKUSItems
+         validGTIN += formatedProducts.validGTIN
+         numSKUFeed += formatedProducts.numSKUFeed
 
           query='';
           count = 0;

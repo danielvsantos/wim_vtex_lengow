@@ -30,6 +30,7 @@ export default class LengowConfig extends React.Component{
 
     render(){
         const lengow_config = this.props.lengowConfig;
+        console.log(this.props.hosts)
         return (
             
             
@@ -38,9 +39,7 @@ export default class LengowConfig extends React.Component{
 
                         <h2>Lengow Config</h2>
                         
-                        <div className="mb5">
-                            <Input className="tc pa2" label="VTEX Account" type="text" id="vtex_account" name="vtex_account" value={lengow_config.vtex_account} onChange={this.handleInputChange}/>
-                        </div>
+                        
                         <div className="mb5">
                             <Input className="tc pa2" label="VTEX Api Key" type="text" id="vtexApiKey" name="vtexApiKey" value={lengow_config.vtexApiKey} onChange={this.handleInputChange}/>
                         </div>
@@ -50,6 +49,16 @@ export default class LengowConfig extends React.Component{
                         <div className="mb5">
                             <Input className="tc pa2" label="Prefix to imported orders - Affilitiate ID" type="text" id="prefixAffiliateID" name="prefixAffiliateID" value={lengow_config.prefixAffiliateID} onChange={this.handleInputChange}/>
                         </div>
+
+                        <div className="mb5">
+                            <Dropdown className="tc pa2" 
+                            options={this.props.hosts.map((item) => {return {value: item, label: item}})}  
+                            label="Shop Domain" id="domainShop" name="domainShop" 
+                            value={lengow_config.domainShop}
+                            initialValue={lengow_config.domainShop}
+                            onChange={this.handleInputChange} />
+                        </div>
+
                         <div className="mb5">
                             <Input className="tc pa2" label="Lengow Account" type="text" id="account" name="account" value={lengow_config.account} onChange={this.handleInputChange}/>
                         </div>

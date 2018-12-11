@@ -10,6 +10,7 @@ import LengowConfig from './components/LengowConfig'
 import wimLengowConfig from './graphql/wimLengowConfig.graphql'
 import saveLengowConfig from './graphql//saveLengowConfig.graphql'
 import salesChannel from './graphql/salesChannel.graphql'
+import getHosts from './graphql/getHosts.graphql'
 
 import 'react-datepicker/dist/react-datepicker-cssmodules.css';
 import LengowStats from './components/LengowStats';
@@ -25,20 +26,21 @@ class WimVtexLengowSetup extends Component {
 
         this.state = {
             lengow_config: {
-                vtex_account: '',
                 account: '',
                 apiKey: '',
                 apiSecret: '',
                 vtexApiKey: '',
                 vtexApiToken: '',
                 prefixAffiliateID: 'LNGW',
+                domainShop: '',
                 boolSandbox: true,
                 salesChannel: null,
                 flagExportDisableSKU: true,
                 flagExportOutOfStockSKU: true,
                 listExludedSkus: '',
                 numberDaysImportOrders: 30,
-                feedFormat: 'json'
+                feedFormat: 'json',
+                domainShop: ''
             },
             loading: this.props.wimLengowConfig.loading,
             disabled_save: false,
@@ -112,12 +114,13 @@ class WimVtexLengowSetup extends Component {
 
 
     render() {
-        if (this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.state.loading) {
+        if (this.props.wimLengowConfig.loading || this.props.salesChannel.loading || this.props.getHosts.loading || this.state.loading) {
             return (
                 <div>AGUARDE</div>
             )
         }
-        console.log("RENDER", this.state.lengow_config);
+        //console.log("RENDER", this.state.lengow_config);
+        console.log(this.props.getHosts)
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
 
         const textButton = (!this.state.id_wim_lengow_config) ? 'SAVE' : 'UPDATE';
@@ -128,7 +131,8 @@ class WimVtexLengowSetup extends Component {
 
                     <Tabs>
                         <Tab label="Config" active={this.state.currentTab === 1} onClick={() => this.handleTabChange(1)}>
-                            <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={ this.props.salesChannel.salesChannel} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
+                            <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={ this.props.salesChannel.salesChannel} 
+                            hosts={this.props.getHosts.accountDomainHosts} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
 
                             <div className="w-50-ns center">
                                 <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
@@ -159,6 +163,7 @@ WimVtexLengowSetup.propTypes = {
 export default compose(
     graphql(wimLengowConfig, { name: 'wimLengowConfig' }),
     graphql(salesChannel, { name: 'salesChannel' }),
+    graphql(getHosts, { name: 'getHosts' }),
     graphql(saveLengowConfig, { name: 'saveLengowConfig' }),
 )(WimVtexLengowSetup)
 

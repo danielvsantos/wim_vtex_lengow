@@ -462,7 +462,6 @@ export const getDateLimit = (dataLengowConfig) => {
 
 export const lengowConfig = `query{
     wimLengowConfig{
-      vtex_account,
       account,
       apiKey,
       apiSecret,
@@ -478,7 +477,8 @@ export const lengowConfig = `query{
       mappingOrderStatus,
       feedFormat,
       lastDateGenerated,
-      numberDaysImportOrders
+      numberDaysImportOrders,
+      domainShop
     }
   }
 `

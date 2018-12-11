@@ -48,6 +48,13 @@
       "name": "outbound-access",
       "attrs": {
         "host": "{{account}}.vtexcommercestable.com.br",
+        "path": "/api/vlm/account/*"
+      }
+    },
+    {
+      "name": "outbound-access",
+      "attrs": {
+        "host": "{{account}}.vtexcommercestable.com.br",
         "path": "/XMLData/*"
       }
     },
@@ -113,6 +120,9 @@
         "host": "api.graph.cool",
         "path":"*"
       }
+    },
+    {
+      "name": "Get_Account_By_Identifier"
     }
   ]
 }

@@ -134,7 +134,7 @@ export const queryProduct = (salesChannel, from, to, category) => {
             `
 }
 
-export const formatProductFeed = (APIProductArray, dataLengowConfig) => {
+export const formatProductFeed = (APIProductArray, dataLengowConfig, account) => {
     let numSKUSParent = 0;
     let validGTIN = 0;
     let numSKUSItems = 0;
@@ -184,7 +184,7 @@ export const formatProductFeed = (APIProductArray, dataLengowConfig) => {
                   product_id: product.productId,
                   title: item.nameComplete,
                   brand: product.brand,
-                  link: product.link,
+                  link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
                   description: product.description,
                   category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
                   image_URL: item.images[0].imageUrl,
@@ -213,7 +213,7 @@ export const formatProductFeed = (APIProductArray, dataLengowConfig) => {
               product_id: `${product.productId}-${item.itemId}`,
               title: item.nameComplete,
               brand: product.brand,
-              link: product.link,
+              link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
               description: product.description,
               ean: item.ean,
               category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),

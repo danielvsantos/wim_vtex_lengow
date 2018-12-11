@@ -1,6 +1,5 @@
 query{
   wimLengowConfig{
-    vtex_account,
     account,
     apiKey,
     apiSecret,
@@ -15,6 +14,7 @@ query{
     listExludedSkus,
     mappingOrderStatus,
     feedFormat,
-    numberDaysImportOrders
+    numberDaysImportOrders,
+    domainShop
   }
 }

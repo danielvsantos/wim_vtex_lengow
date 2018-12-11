@@ -81,6 +81,38 @@ const fileName = `wimVtexLengow.txt`
             //console.log(object)
             return response.data
         },
+        accountDomainHosts: async (_,args, ctx) => {
+            const {vtex: ioContext, request: { headers: { cookie } }} = ctx
+            const {account, authToken} = ioContext
+            
+            const idToken = ctx.cookies.get('VtexIdclientAutCookie')
+
+            var optionsClientInfo = {
+                url: `http://${account}.vtexcommercestable.com.br/api/vlm/account/stores`,
+                headers: {
+                    'Content-Type': 'application/json', 
+                    'VtexIdclientAutCookie': authToken,
+                    'Proxy-Authorization': authToken,
+                    'X-Vtex-Proxy-To': `https://${account}.vtexcommercestable.com.br`,
+                }
+            }
+            let response = await axios.get(optionsClientInfo.url, {headers: optionsClientInfo.headers}).catch(function(error){
+              
+            });
+            let returnData = [ `${account}.myvtex.com` ]
+
+            if(response.data && response.data.length){
+                response.data.forEach(accountData => {
+                    if(accountData.name == account){
+                        returnData = [...returnData, ...accountData.hosts]
+                    }
+                });
+
+                
+            }
+            
+            return returnData;
+        },
         ordersLengow: async (_,args,ctx) => {
             const {vtex: ioContext} = ctx
             const vBase = VBaseClient(ioContext,`ordersImported.txt`)
