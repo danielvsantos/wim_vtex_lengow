@@ -1,10 +1,9 @@
 import { errorResponse } from './error'
 import { GraphQLClient } from 'graphql-request'
 
-
-const axios = require("axios");
-const querystring = require('querystring');
-const delay = require('delay');
+import axios from 'axios'
+import querystring from 'querystring'
+import delay from 'delay';
 
 const LENGOW_API_URL = 'api.lengow.io';
 const LENGOW_API_SANDBOX_URL = 'api.lengow.net';
@@ -180,8 +179,8 @@ export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,pa
     let new_order_params = [{
         'isCreatedAsync': true,
         'marketplaceOrderId' : (lengowOrderData.marketplace_order_id+'-MKP-'+lengowOrderData.marketplace) + ((debug) ? `-debug-${Math.floor((Math.random()*100)+1)}` : ''),
-        //TODO CAMBIAR EL DMARTIN PARA QUE NO TENGA WORKSPACE
-        'marketplaceServicesEndpoint' : `http://dmartin--${account}.myvtex.com/integration/lengow/`,
+
+        'marketplaceServicesEndpoint' : `http://${account}.myvtex.com/integration/lengow/`,
         'marketplacePaymentValue' : lengowOrderData.total_order * 100,
         //'marketplacePaymentValue': totalOrder,
         'items' : simulationData.items,

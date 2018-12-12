@@ -61,34 +61,6 @@
     {
       "name": "outbound-access",
       "attrs":{
-        "host": "api.vtex.com",
-        "path":"*"
-      }
-    },
-    {
-      "name": "outbound-access",
-      "attrs": {
-        "host": "logistics.vtexcommercestable.com.br",
-        "path": "/api/logistics/pvt/configuration/docks/*"
-      }
-    },
-    {
-      "name": "outbound-access",
-      "attrs":{
-        "host": "wimvtexlengow.{{account}}.aws-us-east-1.vtex.io",
-        "path":"*"
-      }
-    },
-    {
-      "name": "outbound-access",
-      "attrs":{
-        "host": "store-graphql.vtex.aws-us-east-1.vtex.io",
-        "path":"*"
-      }
-    },
-    {
-      "name": "outbound-access",
-      "attrs":{
         "host": "{{account}}.vtexpayments.com.br",
         "path":"*"
       }
@@ -111,13 +83,6 @@
       "name": "outbound-access",
       "attrs":{
         "host": "api.lengow.net",
-        "path":"*"
-      }
-    },
-    {
-      "name": "outbound-access",
-      "attrs":{
-        "host": "api.graph.cool",
         "path":"*"
       }
     },

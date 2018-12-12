@@ -52,10 +52,7 @@ const fileName = `wimVtexLengow.txt`
             const idToken = ctx.cookies.get('VtexIdclientAutCookie')
 
             var optionsClientInfo = {
-                //url: `http://api.vtex.com/${account}/dataentities/CL/documents/${idClient}?_fields=document`,
                 url: `http://${account}.vtexcommercestable.com.br/api/catalog_system/pvt/saleschannel/list`,
-                //url: `http://api.vtex.com/${account}/catalog_system/pvt/saleschannel/list`,
-                //url: `https://google.es`,
                 headers: {
                     'VtexIdclientAutCookie': authToken,
                     'Proxy-Authorization': authToken,
