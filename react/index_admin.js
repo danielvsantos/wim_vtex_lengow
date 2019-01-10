@@ -34,7 +34,7 @@ class WimVtexLengowSetup extends Component {
                 prefixAffiliateID: 'LNGW',
                 domainShop: '',
                 boolSandbox: true,
-                salesChannel: null,
+                salesChannel: [],
                 flagExportDisableSKU: true,
                 flagExportOutOfStockSKU: true,
                 listExludedSkus: '',
@@ -67,6 +67,22 @@ class WimVtexLengowSetup extends Component {
         this.setState({ lengow_config });
     }
 
+    handleInputChangeArray = (name, key, value, operation) => {
+        let lengow_config = Object.assign({}, this.state.lengow_config);
+        switch (operation) {
+            case "create":
+                lengow_config[name].push(value)
+                break;
+            case "update":
+                lengow_config[name][key] = value;
+                break;
+            case "delete":
+                lengow_config[name].splice(key,1);
+                break;
+        }
+        this.setState({ lengow_config });
+    }
+
     saveProductForm = (event) => {
         this.setState({ disabled_save: true })
         window.postMessage({ action: { type: 'START_LOADING' } }, '*')
@@ -93,6 +109,7 @@ class WimVtexLengowSetup extends Component {
             let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
             if (nextProps.wimLengowConfig.wimLengowConfig) {
+                lengowConfig.salesChannel = []
                 this.setState({
                     lengow_config: lengowConfig,
                     loading: nextProps.wimLengowConfig.loading
@@ -131,8 +148,8 @@ class WimVtexLengowSetup extends Component {
 
                     <Tabs>
                         <Tab label="Config" active={this.state.currentTab === 1} onClick={() => this.handleTabChange(1)}>
-                            <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={ this.props.salesChannel.salesChannel} 
-                            hosts={this.props.getHosts.accountDomainHosts} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
+                            <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={this.props.salesChannel.salesChannel}
+                                hosts={this.props.getHosts.accountDomainHosts} onChangeArray={this.handleInputChangeArray} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
 
                             <div className="w-50-ns center">
                                 <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
@@ -144,7 +161,7 @@ class WimVtexLengowSetup extends Component {
                             <LengowStats />
                         </Tab>
                         <Tab label="Logs" active={this.state.currentTab === 3} onClick={() => this.handleTabChange(3)}>
-                            <LengowLogs/>
+                            <LengowLogs />
                         </Tab>
                     </Tabs>
                 </div>

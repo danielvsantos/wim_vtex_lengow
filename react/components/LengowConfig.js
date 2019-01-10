@@ -1,6 +1,7 @@
 import React from 'react'
 
 import { Button,Input,Toggle, Dropdown} from 'vtex.styleguide'
+import AdderLineSalesChannel from './AdderLineSalesChannel'
 
 export default class LengowConfig extends React.Component{
     constructor(props) {
@@ -78,12 +79,17 @@ export default class LengowConfig extends React.Component{
                         </div>
 
                         <div className="mb5">
+                            <AdderLineSalesChannel 
+                            salesChannel={this.props.salesChannel} 
+                            salesChannelConfig={lengow_config.salesChannel}
+                            onChangeArray={this.props.onChangeArray} />
+                            {/*
                             <Dropdown className="tc pa2" 
                             options={this.props.salesChannel.map((item) => {return {value: item.Id, label: item.Name}})}  
                             label="Sales Channel" id="salesChannel" name="salesChannel" 
                             value={lengow_config.salesChannel}
                             initialValue={lengow_config.salesChannel}
-                            onChange={this.handleInputChange} />
+                            onChange={this.handleInputChange} />*/}
                         </div>
 
                         <div className="mb5">
