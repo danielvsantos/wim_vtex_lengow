@@ -1,5 +1,5 @@
 //External imports
-import moment from 'moment'
+const moment = require('moment')
 import axios from 'axios'
 import { GraphQLClient } from 'graphql-request'
 
@@ -8,7 +8,7 @@ import { notFound } from './utils/status'
 import VBaseClient from './vbase'
 import * as orderUtils from './utils/ordersutils'
 import { importOrders, changeOrderStatus } from './importorders'
-import {formatProductFeed, convertToXML, getProductsXML} from './utils/feedutils'
+import { formatProductFeed, convertToXML, getProductsXML } from './utils/feedutils'
 
 const setDefaultHeaders = (res) => {
   res.set('Access-Control-Allow-Origin', '*')
@@ -21,7 +21,7 @@ const fileName = `wimLengowFeed.txt`
 
 export default {
   routes: {
-    cancelOrderEndpoint: async(ctx) => {
+    cancelOrderEndpoint: async (ctx) => {
       let result = changeOrderStatus(ctx, 'cancel')
       setDefaultHeaders(ctx.response);
       ctx.response.body = result;
@@ -32,9 +32,9 @@ export default {
       ctx.response.body = result;
     },
     importorders: async (ctx) => {
-        let result = importOrders(ctx);
-        setDefaultHeaders(ctx.response);
-        ctx.response.body = result;
+      let result = importOrders(ctx);
+      setDefaultHeaders(ctx.response);
+      ctx.response.body = result;
     },
     createFeed: async (ctx) => {
       const { response: res, vtex: ioContext } = ctx
@@ -42,13 +42,14 @@ export default {
       setDefaultHeaders(res);
 
       const vbaseLogsLengow = VBaseClient(ioContext, `logsLengow.txt`)
-      const responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
+      let responseLogsLengow = <any>{};
+      responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
 
       var logsLengowData = []
-      if(responseLogsLengow.data){
-          logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+      if (responseLogsLengow.data) {
+        logsLengowData = JSON.parse(responseLogsLengow.data.toString());
       }
-      
+
 
       const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
 
@@ -58,23 +59,25 @@ export default {
         }
       })
 
-      let dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+      let dataLengowConfig = <any>{};
+      dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+      let mapSalesChannels = JSON.parse(dataLengowConfig.wimLengowConfig.salesChannel)
 
       let xmlProducts = await getProductsXML(account, authToken)
-      if(!xmlProducts){
+      if (!xmlProducts) {
         logsLengowData.push({
-            orderID: 'XML-GENERATION', 
-            type: 'error', 
-            msg: `There's no product on Feed`, 
-            date: moment() 
+          orderID: 'XML-GENERATION',
+          type: 'error',
+          msg: `There's no product on Feed`,
+          date: moment()
         })
         vbaseLogsLengow.saveFile(logsLengowData);
         ctx.response.body = {
-            result: "There's no product on Feed"
+          result: "There's no product on Feed"
         }
         return false;
       }
-      
+
       let products = [];
 
       let numSKUSParent = 0;
@@ -87,38 +90,51 @@ export default {
       let count = 0;
       let query = '';
 
-      for(let x=0; x < xmlProducts.length; x++ ){
-        
-        query+= 'fq=productId:'+xmlProducts[x].id_product._cdata+'&'
+      for (let x = 0; x < xmlProducts.length; x++) {
+
+        query += 'fq=productId:' + xmlProducts[x].id_product._cdata + '&'
         count++;
 
-        if(count==50 || x == xmlProducts.length-1 ){
+        if (count == 50 || x == xmlProducts.length - 1) {
           const productSeachEndPoinut = `http://${account}.vtexcommercestable.com.br/api/catalog_system/pub/products/search/?`
           const headers = {
             'VtexIdclientAutCookie': authToken,
             'Proxy-Authorization': authToken,
             'X-Vtex-Proxy-To': `https://${account}.vtexcommercestable.com.br`,
-         }
-         let result = await axios.get(productSeachEndPoinut+query+`isAvailablePerSalesChannel_${dataLengowConfig.wimLengowConfig.salesChannel}:1`, {headers});
-         
-         let formatedProducts =  formatProductFeed(result.data,dataLengowConfig, account)
+          }
 
-         products = [...products, ...formatedProducts.products]
-         numSKUSParent += formatedProducts.numSKUSParent
-         numSKUSItems += formatedProducts.numSKUSItems
-         validGTIN += formatedProducts.validGTIN
-         numSKUFeed += formatedProducts.numSKUFeed
-         numSKUSSimple += formatedProducts.numSKUSSimple
-         numSKUSChild += formatedProducts.numSKUSChild
+          let productsPerMkSC = <any>[];
+          for(let i=0;i<mapSalesChannels.length;i++){
+            let result = <any>{};
+            let saleChannelObject = mapSalesChannels[i]
+            result = await axios.get(productSeachEndPoinut + query + `sc=${saleChannelObject.id}`, { headers })
+            .catch(function (error) {
+              //console.log(error)
+            });
+ 
+            if(typeof result !== "undefined" && typeof result.data !== "undefined" && result.data){
+              productsPerMkSC.push({ marketplace: saleChannelObject.name, products:result.data})
+            }
+          }
+          
+          let formatedProducts = formatProductFeed(productsPerMkSC, dataLengowConfig, account)
 
-          query='';
+          products = [...products, ...formatedProducts.products]
+          numSKUSParent += formatedProducts.numSKUSParent
+          numSKUSItems += formatedProducts.numSKUSItems
+          validGTIN += formatedProducts.validGTIN
+          numSKUFeed += formatedProducts.numSKUFeed
+          numSKUSSimple += formatedProducts.numSKUSSimple
+          numSKUSChild += formatedProducts.numSKUSChild
+
+          query = '';
           count = 0;
         }
 
-        
+
       }
 
-      
+
 
       const vbase = VBaseClient(ioContext, fileName)
       await vbase.saveFile({ product: products });
@@ -142,13 +158,13 @@ export default {
       }
 
       logsLengowData.push({
-        orderID: 'XML-GENERATION', 
-        type: 'success', 
-        msg: JSON.stringify(result), 
-        date: moment() 
+        orderID: 'XML-GENERATION',
+        type: 'success',
+        msg: JSON.stringify(result),
+        date: moment()
       })
       vbaseLogsLengow.saveFile(logsLengowData);
-      
+
       ctx.response.body = result
     },
 
@@ -166,10 +182,12 @@ export default {
         }
       })
 
-      let dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+      let dataLengowConfig = <any>{};
+      dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
 
       const vbaseProducts = VBaseClient(ioContext, fileName)
-      const response = await vbaseProducts.getFile().catch(notFound())
+      let response = <any>{};
+      response = await vbaseProducts.getFile().catch(notFound())
 
       if (dataLengowConfig.wimLengowConfig.feedFormat == 'xml') {
         res.set('Content-Type', 'text/xml')

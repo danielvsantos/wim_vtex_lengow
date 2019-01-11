@@ -63,7 +63,6 @@ class WimVtexLengowSetup extends Component {
     handleInputChange = (name, value) => {
         let lengow_config = Object.assign({}, this.state.lengow_config);
         lengow_config[name] = value;
-        console.log(lengow_config, name, value);
         this.setState({ lengow_config });
     }
 
@@ -87,13 +86,14 @@ class WimVtexLengowSetup extends Component {
         this.setState({ disabled_save: true })
         window.postMessage({ action: { type: 'START_LOADING' } }, '*')
 
-        let lengow_config = this.state.lengow_config;
-
+        let lengow_config = {...this.state.lengow_config};
+        lengow_config.salesChannel = JSON.stringify(lengow_config.salesChannel)
         const options = {
             variables: {
                 data: lengow_config
             },
         }
+        
 
 
         this.props.saveLengowConfig(options).then((res) => {
@@ -109,7 +109,19 @@ class WimVtexLengowSetup extends Component {
             let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
             if (nextProps.wimLengowConfig.wimLengowConfig) {
-                lengowConfig.salesChannel = []
+                try{
+                    
+                    if(!lengowConfig.salesChannel){
+                        lengowConfig.salesChannel = []
+                    }else{
+                        lengowConfig.salesChannel = JSON.parse(lengowConfig.salesChannel)
+                    }
+                    if(!Array.isArray(lengowConfig.salesChannel)){
+                        lengowConfig.salesChannel = []
+                    }
+                }catch(e){
+                    lengowConfig.salesChannel = []
+                }
                 this.setState({
                     lengow_config: lengowConfig,
                     loading: nextProps.wimLengowConfig.loading
@@ -137,7 +149,6 @@ class WimVtexLengowSetup extends Component {
             )
         }
         //console.log("RENDER", this.state.lengow_config);
-        console.log(this.props.getHosts)
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
 
         const textButton = (!this.state.id_wim_lengow_config) ? 'SAVE' : 'UPDATE';

@@ -2,7 +2,7 @@ import { errorResponse } from './error'
 import { GraphQLClient } from 'graphql-request'
 
 import axios from 'axios'
-import querystring from 'querystring'
+const querystring = require('querystring');
 import delay from 'delay';
 
 const LENGOW_API_URL = 'api.lengow.io';
@@ -20,7 +20,8 @@ export const setDefaultHeaders = (res) => {
 }
 
 export const getAjaxDataByGET = async (options) => {
-    const response = await axios.get(options.url,{headers:options.headers})
+    let response = <any>{};
+    response = await axios.get(options.url,{headers:options.headers})
     .catch(function(error){
         return {error}
     });
@@ -34,7 +35,8 @@ export const getAjaxDataByGET = async (options) => {
 }
 
 export const getAjaxData = async (options) => {
-    const response = await axios[options.operation](options.url,options.data,{headers:options.headers})
+    let response = <any>{};
+    response = await axios[options.operation](options.url,options.data,{headers:options.headers})
     .catch(function(error){
         return {error}
     });
@@ -99,7 +101,7 @@ export const getLengowToken = async (ctx,dataLengowConfig) => {
     }
 
     let sucessCall = false
-    let lengowToken = {}
+    let lengowToken = <any>{};
     for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
         if(!sucessCall){
             lengowToken = await getAjaxData(optionsGetLengowToken);
@@ -201,7 +203,7 @@ export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,pa
 }
 
 
-export const getPaymentData = async(account,dataLengowConfig,authToken)=>{
+export const getPaymentData = async(saleChannel,account,dataLengowConfig,authToken)=>{
     let optionsGetPaymentData = {
         url : `http://${account}.vtexpayments.com.br/api/pvt/merchants/payment-systems`,
         headers:{
@@ -253,12 +255,11 @@ export const createSafePost = (callback: Function) => {
 
 export const changeLengowOrderStatus = async (idOrder,marketplace,status,lengowToken,authToken,dataLengowConfig,trackingNumber = null, trackingURL = null, carrier=null) => {
      
-    let lengowStatusOrders = {
-        marketplace_order_id : idOrder,
-        account_id: lengowToken.account_id,
-        marketplace,
-        action_type: status
-    }
+    let lengowStatusOrders = <any>{}; 
+    lengowStatusOrders.marketplace_order_id = idOrder
+    lengowStatusOrders.account_id = lengowToken.account_id
+    lengowStatusOrders.marketplace = marketplace
+    lengowStatusOrders.action_type = status
 
     if(trackingNumber){
         lengowStatusOrders.tracking_number = trackingNumber;
@@ -286,7 +287,7 @@ export const changeLengowOrderStatus = async (idOrder,marketplace,status,lengowT
 
     console.log('PARA CAMBIAR EL STATUS',JSON.stringify(optionsChangeStatusOrder,null,2))
     let sucessCall = false
-    let lengowResponse = {}
+    let lengowResponse = <any>{};
     for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
         if(!sucessCall){
             lengowResponse = await getAjaxData(optionsChangeStatusOrder);
@@ -323,7 +324,7 @@ export const changeLengowMerchantOrderID = async (marketplace_order_id,merchant_
     }
 
     let sucessCall = false
-    let lengowResponse = {}
+    let lengowResponse = <any>{};
     for(let i=0;i<LENGOW_API_NUM_RETRIES;i++){
         if(!sucessCall){
             lengowResponse = await getAjaxData(optionsChangeMOIOrder);
@@ -340,17 +341,17 @@ export const changeLengowMerchantOrderID = async (marketplace_order_id,merchant_
 }
 
 
-export const getLengowOrders = async (lengowToken,authToken, dataLengowConfig, marketPlaceOrderId = null,pageNumber = 1, pageSize = 1) => {
+export const getLengowOrders = async (saleChannel,lengowMarketplace,lengowToken,authToken, dataLengowConfig, marketPlaceOrderId = null,pageNumber = 1, pageSize = 1) => {
     let debug = false;
     let dateFilter = new Date();
     dateFilter.setDate(dateFilter.getDate()-getDateLimit(dataLengowConfig));
 
-    let lengowFilterOrders = {
-        account_id : lengowToken.account_id,
-        page:pageNumber,
-        page_size: (debug) ? 1 : pageSize,
-        ordering: '-marketplace_order_date'
-    }
+    let lengowFilterOrders = <any>{};
+    lengowFilterOrders.marketplace = lengowMarketplace
+    lengowFilterOrders.account_id = lengowToken.account_id
+    lengowFilterOrders.page = pageNumber
+    lengowFilterOrders.page_size = (debug) ? 1 : pageSize
+    lengowFilterOrders.ordering = '-marketplace_order_date'
     if(marketPlaceOrderId){
         lengowFilterOrders.marketplace_order_id = marketPlaceOrderId
     }else{
@@ -397,9 +398,9 @@ export const getLengowOrders = async (lengowToken,authToken, dataLengowConfig, m
     return lengowOrders;
 }
 
-export const getOptionsSimulateCart = (account,authToken,dataLengowConfig) => {
+export const getOptionsSimulateCart = (saleChannel,account,authToken,dataLengowConfig) => {
     let optionsSimulateCart = {
-        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orderForms/simulation?sc=${dataLengowConfig.wimLengowConfig.salesChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
+        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orderForms/simulation?sc=${saleChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
         headers: {
             'VtexIdclientAutCookie': authToken,
             'Proxy-Authorization': authToken,
@@ -412,9 +413,9 @@ export const getOptionsSimulateCart = (account,authToken,dataLengowConfig) => {
     return optionsSimulateCart;
 }
 
-export const getOptionsInsertOrder = (account,authToken,dataLengowConfig) => {
+export const getOptionsInsertOrder = (saleChannel,account,authToken,dataLengowConfig) => {
     let optionsInsertOrder = {
-        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orders?sc=${dataLengowConfig.wimLengowConfig.salesChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
+        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orders?sc=${saleChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
         headers: {
             'VtexIdclientAutCookie': authToken,
             'Proxy-Authorization': authToken,
@@ -428,9 +429,9 @@ export const getOptionsInsertOrder = (account,authToken,dataLengowConfig) => {
 }
 
 
-export const getOptionsDispatchOrder = (vtexIdOrder,account,authToken,dataLengowConfig) => {
+export const getOptionsDispatchOrder = (saleChannel,vtexIdOrder,account,authToken,dataLengowConfig) => {
     let optionsInsertOrder = {
-        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orders/${vtexIdOrder}/fulfill?sc=${dataLengowConfig.wimLengowConfig.salesChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
+        url: `http://${account}.myvtex.com/api/fulfillment/pvt/orders/${vtexIdOrder}/fulfill?sc=${saleChannel}&affiliateId=${dataLengowConfig.wimLengowConfig.prefixAffiliateID}`,
         headers: {
             'VtexIdclientAutCookie': authToken,
             'Proxy-Authorization': authToken,

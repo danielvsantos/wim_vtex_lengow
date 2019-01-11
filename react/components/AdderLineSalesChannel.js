@@ -16,9 +16,6 @@ export default class AdderLineSalesChannel extends Component {
     }
 
     render() {
-
-        
-        console.log('PEPEPEPEPE',this.props.salesChannelConfig)
         return (
             <Fragment>
 
@@ -31,6 +28,7 @@ export default class AdderLineSalesChannel extends Component {
                 </div>
                 {this.props.salesChannelConfig.map((item, index) =>
                     <LineSalesChannel
+                        key={index}
                         lineId={index}
                         onChangeArray={this.props.onChangeArray}
                         salesChannel={this.props.salesChannel}

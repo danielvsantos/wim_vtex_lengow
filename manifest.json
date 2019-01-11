@@ -10,8 +10,8 @@
     "graphql": "1.x",
     "react": "2.x",
     "pages": "0.x",
-    "node": "3.x"
-    
+    "node": "3.x",
+    "messages": "0.x"
   },
   "mustUpdateAt": "2019-08-24",
   "categories": [],

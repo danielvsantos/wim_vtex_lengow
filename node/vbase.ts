@@ -25,3 +25,12 @@ export default function VBaseClient({ account, workspace, region, authToken }: R
         }
     }
 }
+
+interface ReqContext {
+    account: string,
+    workspace: string,
+    authToken: string,
+    region: string,
+    production: boolean,
+    userAgent: string
+}
