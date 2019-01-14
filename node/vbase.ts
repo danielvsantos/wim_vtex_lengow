@@ -1,20 +1,20 @@
-import { VBase } from '@vtex/api'
+import { VBase , IOContext} from '@vtex/api'
 
 const service: string = "wimvtexlengow"
 const userAgent: string = "VTEX wimvtexlengow " + process.env.VTEX_APP_VERSION
 
-export default function VBaseClient({ account, workspace, region, authToken }: ReqContext, fileName) {
+export default function VBaseClient(ioContext: IOContext, fileName) {
 
-    const client = new VBase({ account, workspace, region, authToken, userAgent })  
+    const client = new VBase(ioContext)
 
     return {
         saveFile: (data) => {
+            
             var Readable = require('stream').Readable;
             var s = new Readable();
             s._read = function noop() { };
             s.push(JSON.stringify(data));
             s.push(null);
-
             return client.saveFile(service, fileName, s, false)
         },
         getFile: () => {
@@ -24,13 +24,4 @@ export default function VBaseClient({ account, workspace, region, authToken }: R
             return client.deleteFile(service, fileName)
         }
     }
-}
-
-interface ReqContext {
-    account: string,
-    workspace: string,
-    authToken: string,
-    region: string,
-    production: boolean,
-    userAgent: string
 }

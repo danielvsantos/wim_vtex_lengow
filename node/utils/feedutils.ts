@@ -48,7 +48,8 @@ export const getProductsXML = async (account, authToken) => {
     return false;
   }
 
-  return JSON.parse(convertToJson(response.data)).products.product;
+  let idProducts = JSON.parse(convertToJson(response.data)).products.product;
+  return idProducts.map(item => item.id_product._cdata);
 }
 
 const generateChildren = (string, counter) => {
@@ -174,7 +175,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
             if (uniqueItem) {
               product_type = 'simple'
-              numSKUSSimple++;
+              
             }
             else {
               product_type = 'child'
@@ -193,10 +194,6 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 let foundIndex = products.findIndex((productFind) => {
                   return productFind.product_id == product.productId
                 })
-
-              
-                  
-                
 
                 if (foundIndex<0) {
                   let productParentAux = {
@@ -257,7 +254,9 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 product_type
                 //attributes: {attribute: item.variations}
               }
-
+              if (product_type == 'simple') {
+                numSKUSSimple++;
+              }
               if (product_type == 'child') {
                 numSKUSChild++;
                 productAux['parent_id'] = product.productId

@@ -10,6 +10,8 @@ import * as orderUtils from './utils/ordersutils'
 import { importOrders, changeOrderStatus } from './importorders'
 import { formatProductFeed, convertToXML, getProductsXML } from './utils/feedutils'
 
+import delay from 'delay';
+
 const setDefaultHeaders = (res) => {
   res.set('Access-Control-Allow-Origin', '*')
   res.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
@@ -63,7 +65,24 @@ export default {
       dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
       let mapSalesChannels = JSON.parse(dataLengowConfig.wimLengowConfig.salesChannel)
 
-      let xmlProducts = await getProductsXML(account, authToken)
+      const vbase = VBaseClient(ioContext, fileName)
+      const vBaseLengowConfig = VBaseClient(ioContext, 'wimVtexLengow.txt');
+      let products = [];
+      let xmlProducts = []
+      if(dataLengowConfig.wimLengowConfig.xmlProductIds){
+        //console.log('Entro en generar siguiente')
+        xmlProducts = JSON.parse(dataLengowConfig.wimLengowConfig.xmlProductIds)
+        let response = <any>{};
+        response = await vbase.getFile().catch(notFound())
+        products = JSON.parse(response.data.toString()).product
+        //console.log('Lectura de IDs de producto desde guardado parcial finalizado')
+      }else{
+        //console.log('Entro en generar de nuevo')
+        xmlProducts = await getProductsXML(account, authToken)
+        //console.log('Lectura de IDs de producto de Feed original XML finalizada')
+        await vbase.saveFile({ product: products });
+      }
+      
       if (!xmlProducts) {
         logsLengowData.push({
           orderID: 'XML-GENERATION',
@@ -78,8 +97,6 @@ export default {
         return false;
       }
 
-      let products = [];
-
       let numSKUSParent = 0;
       let numSKUSItems = 0;
       let validGTIN = 0;
@@ -89,12 +106,13 @@ export default {
 
       let count = 0;
       let query = '';
+      let totalCount = 0;
 
+      let xmlProductsAux = [...xmlProducts];
       for (let x = 0; x < xmlProducts.length; x++) {
 
-        query += 'fq=productId:' + xmlProducts[x].id_product._cdata + '&'
+        query += 'fq=productId:' + xmlProducts[x] + '&'
         count++;
-
         if (count == 50 || x == xmlProducts.length - 1) {
           const productSeachEndPoinut = `http://${account}.vtexcommercestable.com.br/api/catalog_system/pub/products/search/?`
           const headers = {
@@ -119,7 +137,11 @@ export default {
           
           let formatedProducts = formatProductFeed(productsPerMkSC, dataLengowConfig, account)
 
-          products = [...products, ...formatedProducts.products]
+          try{
+            products = [...products, ...formatedProducts.products]
+          }catch(e){
+            console.log('Error',typeof products);
+          }
           numSKUSParent += formatedProducts.numSKUSParent
           numSKUSItems += formatedProducts.numSKUSItems
           validGTIN += formatedProducts.validGTIN
@@ -127,19 +149,23 @@ export default {
           numSKUSSimple += formatedProducts.numSKUSSimple
           numSKUSChild += formatedProducts.numSKUSChild
 
+          totalCount+=count;
           query = '';
           count = 0;
+          xmlProductsAux.splice(0,50);
+          //console.log('GUARDO BATCH #',totalCount);
+          await vbase.saveFile({ product: products });
+          if(xmlProductsAux.length){
+            dataLengowConfig.wimLengowConfig.xmlProductIds = JSON.stringify(xmlProductsAux)
+          }else{
+            dataLengowConfig.wimLengowConfig.xmlProductIds = ''
+          }
+          await vBaseLengowConfig.saveFile(dataLengowConfig.wimLengowConfig)
+          
         }
 
 
       }
-
-
-
-      const vbase = VBaseClient(ioContext, fileName)
-      await vbase.saveFile({ product: products });
-
-      const vBaseLengowConfig = VBaseClient(ioContext, 'wimVtexLengow.txt');
 
       let date = new Date().toISOString().
         replace(/T/, ' ').      // replace T with a space
@@ -148,12 +174,16 @@ export default {
       dataLengowConfig.wimLengowConfig.lastDateGenerated = date;
       await vBaseLengowConfig.saveFile(dataLengowConfig.wimLengowConfig)
 
+      numSKUSParent = products.filter(item => item.product_type == 'parent').length
+      numSKUSSimple = products.filter(item => item.product_type == 'simple').length
+      numSKUSItems =  numSKUSParent + numSKUSSimple//CUENTA DE LOS SKUS parent + simple
+      numSKUSChild = products.filter(item => item.product_type == 'child').length
+      numSKUFeed = products.length //CUENTA DE TODOS LOS SKUS (parent, simple, children) en el FEED
       let result = {
         numSKUSItems,
         numSKUSSimple,
         numSKUSParent,
         numSKUSChild,
-        validGTIN,
         numSKUFeed
       }
 

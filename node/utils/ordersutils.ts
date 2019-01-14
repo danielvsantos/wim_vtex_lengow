@@ -478,7 +478,8 @@ export const lengowConfig = `query{
       feedFormat,
       lastDateGenerated,
       numberDaysImportOrders,
-      domainShop
+      domainShop,
+      xmlProductIds
     }
   }
 `

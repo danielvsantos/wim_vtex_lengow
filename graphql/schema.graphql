@@ -21,7 +21,8 @@ type wimLengowConfig{
 	feedFormat: String,
 	lastDateGenerated: String,
 	numberDaysImportOrders: Int,
-	domainShop: String
+	domainShop: String,
+	xmlProductIds: String
 
 }
 
@@ -43,7 +44,8 @@ input wimLengowConfigInput{
 	flagCheckValidGTIN: Boolean,
 	feedFormat: String,
 	numberDaysImportOrders: Int,
-	domainShop: String
+	domainShop: String,
+	xmlProductIds: String
 }
 
 type orderLengow{
