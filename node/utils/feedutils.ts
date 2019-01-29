@@ -198,6 +198,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 if (foundIndex<0) {
                   let productParentAux = {
                     product_id: product.productId,
+                    reference: product.productReference,
                     title: item.nameComplete,
                     brand: product.brand,
                     link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
@@ -236,8 +237,17 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
             })
 
             if (foundIndex2<0) {
+
+              let refId = '';
+              if(item.referenceId){
+                  let refArray = item.referenceId.filter(ele => ele.Key == 'RefId')
+                  if(refArray.length){
+                    refId = refArray[0].Value
+                  }
+              }
               let productAux = {
                 product_id: `${product.productId}-${item.itemId}`,
+                reference: refId,
                 title: item.nameComplete,
                 brand: product.brand,
                 link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
