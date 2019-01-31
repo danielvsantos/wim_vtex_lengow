@@ -51,6 +51,20 @@ class WimVtexLengowSetup extends Component {
             this.state.loading = true;
             this.props.wimLengowConfig.refetch().then(res => {
                 let lengow_config = res.data.wimLengowConfig;
+                try{
+                    
+                    if(!lengow_config.salesChannel){
+                        lengow_config.salesChannel = []
+                    }else{
+                        lengow_config.salesChannel = JSON.parse(lengow_config.salesChannel)
+                    }
+                    if(!Array.isArray(lengow_config.salesChannel)){
+                        lengow_config.salesChannel = []
+                    }
+                }catch(e){
+                    lengow_config.salesChannel = []
+                }
+
                 this.setState({ lengow_config, loading: false });
             });
         }
@@ -166,6 +180,11 @@ class WimVtexLengowSetup extends Component {
                                 <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
                                     {textButton}
                                 </Button>
+                            </div>
+                            <div className="w-50-ns center">
+                                <p>https://ACCOUNT.vtexcommercestable.com.br/integration/lengow/createFeed</p>
+                                <p>https://ACCOUNT.vtexcommercestable.com.br/integration/lengow/feed</p>
+                                <p>https://ACCOUNT.vtexcommercestable.com.br/integration/lengow/importorders</p>
                             </div>
                         </Tab>
                         <Tab label="Stats" active={this.state.currentTab === 2} onClick={() => this.handleTabChange(2)}>

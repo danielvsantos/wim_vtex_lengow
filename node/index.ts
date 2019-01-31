@@ -52,6 +52,14 @@ export default {
         logsLengowData = JSON.parse(responseLogsLengow.data.toString());
       }
 
+      logsLengowData.push({
+        orderID: 'XML-GENERATION',
+        type: 'start',
+        msg: 'Call to XML Generation started',
+        date: moment()
+      })
+      vbaseLogsLengow.saveFile(logsLengowData);
+
 
       const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
 
