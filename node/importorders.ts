@@ -86,13 +86,16 @@ export const importOrders = async (ctx) => {
     let mapSalesChannels = JSON.parse(dataLengowConfig.wimLengowConfig.salesChannel)
     let lengowToken = <any>{};
     lengowToken = await orderUtils.getLengowToken(ctx, dataLengowConfig)
+    
+    let debug_LengowOrder = 'D3M0-000028';
+
     if (lengowToken.data && lengowToken.data.token) {
         lengowToken = lengowToken.data;
         mapSalesChannels.forEach(async saleChannelObject => {
             let optionsSimulateCart = orderUtils.getOptionsSimulateCart(saleChannelObject.id, account, authToken, dataLengowConfig)
             let optionsInsertOrder = orderUtils.getOptionsInsertOrder(saleChannelObject.id, account, authToken, dataLengowConfig)
             let paymentData = await orderUtils.getPaymentData(saleChannelObject.id, account, dataLengowConfig, authToken);
-            let lengowOrders = await orderUtils.getLengowOrders(saleChannelObject.id, saleChannelObject.name,lengowToken, authToken, dataLengowConfig, null, 1, orderUtils.LENGOW_ORDERS_PER_PAGE)
+            let lengowOrders = await orderUtils.getLengowOrders(saleChannelObject.id, saleChannelObject.name,lengowToken, authToken, dataLengowConfig, debug_LengowOrder, 1, orderUtils.LENGOW_ORDERS_PER_PAGE)
 
 
             if (typeof lengowOrders.results != "undefined") {
@@ -127,6 +130,13 @@ export const importOrders = async (ctx) => {
                     optionsSimulateCart.data = simulationParams;
                     let simulationCall = await orderUtils.getAjaxData(optionsSimulateCart)
 
+                    let debug_simulation = true;
+                    if(debug_simulation){
+                        console.log('La simulacion se manda con ',JSON.stringify(optionsSimulateCart, null, 2))
+                        console.log('La simulacion tiene',JSON.stringify(simulationCall.data, null, 2))
+                        return
+                    }
+                    
 
                     if (typeof simulationCall.data.messages != "undefined"
                         && simulationCall.data.messages.length > 0) {
