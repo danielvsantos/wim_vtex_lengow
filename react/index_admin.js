@@ -182,9 +182,9 @@ class WimVtexLengowSetup extends Component {
                                 </Button>
                             </div>
                             <div className="w-50-ns center">
-                                <p>https://ACCOUNT.vtexcommercestable.com.br/integration/lengow/createFeed</p>
-                                <p>https://ACCOUNT.vtexcommercestable.com.br/integration/lengow/feed</p>
-                                <p>https://ACCOUNT.vtexcommercestable.com.br/integration/lengow/importorders</p>
+                                <p>https://ACCOUNT.myvtex.com/integration/lengow/createFeed</p>
+                                <p>https://ACCOUNT.myvtex.com/integration/lengow/feed</p>
+                                <p>https://ACCOUNT.myvtex.com/integration/lengow/importorders</p>
                             </div>
                         </Tab>
                         <Tab label="Stats" active={this.state.currentTab === 2} onClick={() => this.handleTabChange(2)}>

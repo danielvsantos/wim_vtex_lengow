@@ -97,6 +97,7 @@ export const importOrders = async (ctx) => {
 
             if (typeof lengowOrders.results != "undefined") {
                 lengowOrders.results.forEach(async order => {
+                    //console.log(JSON.stringify(order, null, 2))
                     let totalOrder = 0;
                     let simulationParams = {
                         'postalCode': order.packages[0].delivery.zipcode,
@@ -104,11 +105,22 @@ export const importOrders = async (ctx) => {
                         'items': []
                     }
                     order.packages[0].cart.forEach(order_line => {
-                        simulationParams.items.push({
-                            'id': ((order_line.merchant_product_id.id.indexOf('-') > 0) ? order_line.merchant_product_id.id.split('-')[1] : order_line.merchant_product_id.id),
-                            'quantity': order_line.quantity,
-                            'seller': 1 // usar siempre 1 http://vtex.github.io/docs/integration/marketplace/marketplace-non-vtex/index.html#search-of-commercial-conditions
-                        });
+                        if(parseFloat(order_line.amount) > 0){
+                            simulationParams.items.push({
+                                'id': ((order_line.merchant_product_id.id.indexOf('-') > 0) ? order_line.merchant_product_id.id.split('-')[1] : order_line.merchant_product_id.id),
+                                'quantity': order_line.quantity,
+                                'seller': 1 // usar siempre 1 http://vtex.github.io/docs/integration/marketplace/marketplace-non-vtex/index.html#search-of-commercial-conditions
+                            });
+                        } else {
+                            let msgError = `WARNING - Product ${order_line.merchant_product_id.id} on order ${order.marketplace_order_id} discarded. Caused by price 0`
+                            logsLengowData.push({
+                                orderID: order.marketplace_order_id,
+                                type: 'warning',
+                                msg: msgError,
+                                date: moment()
+                            })
+                            console.log(msgError)
+                        }
                     });
 
 
@@ -127,6 +139,7 @@ export const importOrders = async (ctx) => {
                     }
 
                     let haveSLA = true;
+                    let noSlaCausedByItemId = 0;
                     simulationCall.data.logisticsInfo.forEach(logisticData => {
                         if (!logisticData) {
                             //TODO LOG ERROR BECAUSE WE CANT DISPATCH THIS ORDER WITH VTEX LOGISTIC DATA
@@ -250,7 +263,7 @@ export const importOrders = async (ctx) => {
                             msg: `ERROR on simulation not have SLAs availables for Lengow Order: ${order.marketplace_order_id} - ${JSON.stringify(simulationCall.data, null, 2)}`,
                             date: moment()
                         })
-                        console.log(`ERROR on simulation not have SLAs availables for Lengow Order ${order.marketplace_order_id}`, JSON.stringify(simulationCall.data, null, 2))
+                        console.log(`ERROR on simulation not have SLAs availables for Lengow Order ${order.marketplace_order_id}`)
                     }
 
                     vbaseLogsLengow.saveFile(logsLengowData);

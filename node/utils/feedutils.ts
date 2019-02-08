@@ -357,16 +357,16 @@ export const createFeed = async(ctx) => {
       let products = [];
       let xmlProducts = []
       if(dataLengowConfig.wimLengowConfig.xmlProductIds){
-        //console.log('Entro en generar siguiente')
+        console.log('Entro en generar siguiente')
         xmlProducts = JSON.parse(dataLengowConfig.wimLengowConfig.xmlProductIds)
         let response = <any>{};
         response = await vbase.getFile().catch(notFound())
         products = JSON.parse(response.data.toString()).product
-        //console.log('Lectura de IDs de producto desde guardado parcial finalizado')
+        console.log('Lectura de IDs de producto desde guardado parcial finalizado')
       }else{
-        //console.log('Entro en generar de nuevo')
+        console.log('Entro en generar de nuevo')
         xmlProducts = await getProductsXML(account, authToken)
-        //console.log('Lectura de IDs de producto de Feed original XML finalizada')
+        console.log('Lectura de IDs de producto de Feed original XML finalizada')
         await vbase.saveFile({ product: products });
       }
       
