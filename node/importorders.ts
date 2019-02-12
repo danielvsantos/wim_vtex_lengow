@@ -87,7 +87,8 @@ export const importOrders = async (ctx) => {
     let lengowToken = <any>{};
     lengowToken = await orderUtils.getLengowToken(ctx, dataLengowConfig)
     
-    let debug_LengowOrder = 'D3M0-000028';
+    //DEBUG - Fill with Lengow Order ID to import only this order, example: 'D3M0-000028'
+    let debug_LengowOrder = false;
 
     if (lengowToken.data && lengowToken.data.token) {
         lengowToken = lengowToken.data;
