@@ -219,7 +219,8 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                     [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                     [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
-                    quantity_in_stock: sumQuantity,
+                    [`quantity_in_stock_${marketplace}`]: sumQuantity,
+                    //quantity_in_stock: sumQuantity,
                     //item.sellers[0].commertialOffer.AvailableQuantity,
                     bullet_points: product.metaTagDescription,
                     keywords: `${product.metaTagDescription}`,
@@ -239,6 +240,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                   products[foundIndex][`sale_price_${marketplace}`] = item.sellers[0].commertialOffer.Price
                   products[foundIndex][`barred_price_${marketplace}`] = item.sellers[0].commertialOffer.ListPrice
                   products[foundIndex][`price_including_tax_${marketplace}`] = item.sellers[0].commertialOffer.Price
+                  products[foundIndex][`quantity_in_stock_${marketplace}`]= sumQuantity
                 }
               }
             }
@@ -274,7 +276,8 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                 [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                 [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
-                quantity_in_stock: item.sellers[0].commertialOffer.AvailableQuantity,
+                [`quantity_in_stock_${marketplace}`]: item.sellers[0].commertialOffer.AvailableQuantity,
+                //quantity_in_stock: item.sellers[0].commertialOffer.AvailableQuantity,
                 bullet_points: product.metaTagDescription,
                 keywords: `${product.metaTagDescription}`,
                 product_type
@@ -307,6 +310,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
               products[foundIndex2][`sale_price_${marketplace}`] = item.sellers[0].commertialOffer.Price
               products[foundIndex2][`barred_price_${marketplace}`] = item.sellers[0].commertialOffer.ListPrice
               products[foundIndex2][`price_including_tax_${marketplace}`] = item.sellers[0].commertialOffer.Price
+              products[foundIndex2][`quantity_in_stock_${marketplace}`] = item.sellers[0].commertialOffer.AvailableQuantity
             }
           }
         })
