@@ -47,6 +47,7 @@ export const getProductsXML = async (account, authToken) => {
   let response = <any>{};
   response = await axios.get(xmlRequestInfo.url, { headers: xmlRequestInfo.headers })
     .catch(function (error) {
+      console.log('ERROR ON Fetch XML ',error)
       return false;
     });
 
@@ -202,6 +203,10 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 })
 
                 if (foundIndex<0) {
+                  let imageSkuURL = ''
+                  if(typeof item.images !== "undefined" && item.images && item.images.length > 0){
+                    imageSkuURL = item.images[0].imageUrl;
+                  }
                   let productParentAux = {
                     product_id: product.productId,
                     reference: product.productReference,
@@ -210,7 +215,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
                     description: product.description,
                     category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
-                    image_URL: item.images[0].imageUrl,
+                    image_URL: imageSkuURL,
                     [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                     [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                     [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
@@ -251,6 +256,11 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     refId = refArray[0].Value
                   }
               }
+
+              let imageSkuURL = ''
+              if(typeof item.images !== "undefined" && item.images && item.images.length > 0){
+                imageSkuURL = item.images[0].imageUrl;
+              }
               let productAux = {
                 product_id: `${product.productId}-${item.itemId}`,
                 reference: refId,
@@ -260,7 +270,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 description: product.description,
                 ean: item.ean,
                 category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
-                image_URL: item.images[0].imageUrl,
+                image_URL: imageSkuURL,
                 [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                 [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                 [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
