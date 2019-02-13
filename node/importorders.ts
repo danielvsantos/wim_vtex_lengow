@@ -131,7 +131,7 @@ export const importOrders = async (ctx) => {
                     optionsSimulateCart.data = simulationParams;
                     let simulationCall = await orderUtils.getAjaxData(optionsSimulateCart)
 
-                    let debug_simulation = true;
+                    let debug_simulation = false;
                     if(debug_simulation){
                         console.log('La simulacion se manda con ',JSON.stringify(optionsSimulateCart, null, 2))
                         console.log('La simulacion tiene',JSON.stringify(simulationCall.data, null, 2))
@@ -205,7 +205,7 @@ export const importOrders = async (ctx) => {
                                         msg: `Dispatch VTEX Order: ${dispatchResult.error}`,
                                         date: moment()
                                     })
-                                    console.log('ERROR on Dispatch VTEX Order', dispatchResult.error)
+                                    console.log('ERROR on Dispatch VTEX Order', JSON.stringify(dispatchResult.error, null, 2))
                                 } else if (typeof dispatchResult.status != "undefined" && typeof dispatchResult.statusText != "undefined"
                                     && dispatchResult.status == 200 && dispatchResult.statusText == 'OK') {
                                     logsLengowData.push({
