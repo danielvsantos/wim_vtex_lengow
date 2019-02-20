@@ -471,7 +471,7 @@ export const lengowConfig = `query{
       boolSandbox,
       salesChannel,
       flagExportDisableSKU,
-      flagExportDisableSKU,
+      flagExportOutOfStockSKU,
       flagCheckValidGTIN,
       listExludedSkus,
       mappingOrderStatus,

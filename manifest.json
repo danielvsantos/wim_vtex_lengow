@@ -1,7 +1,7 @@
 {
   "vendor": "webimpacto",
   "name": "wimvtexlengow",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "title": "Lengow Integration",
   "description": "Integrate sync orders from Lengow flow",
   "credentialType": "absolute",
@@ -13,7 +13,7 @@
     "node": "3.x",
     "messages": "0.x"
   },
-  "mustUpdateAt": "2019-08-24",
+  "mustUpdateAt": "2025-08-24",
   "categories": [],
   "registries": [
     "smartcheckout"

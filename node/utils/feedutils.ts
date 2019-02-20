@@ -47,7 +47,7 @@ export const getProductsXML = async (account, authToken) => {
   let response = <any>{};
   response = await axios.get(xmlRequestInfo.url, { headers: xmlRequestInfo.headers })
     .catch(function (error) {
-      console.log('ERROR ON Fetch XML ',error)
+      console.log('ERROR ON Fetch XML ',error.data)
       return false;
     });
 
@@ -152,6 +152,9 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
   let numSKUSItems = 0;
   let numSKUFeed = 0;
   let products = [];
+
+  let excludeOutStock = dataLengowConfig.wimLengowConfig.flagExportOutOfStockSKU;
+
   productsPerMkSC.map((marketplaceProducts) => {
 
     let marketplace = marketplaceProducts.marketplace
@@ -175,6 +178,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
           isValidGTIN = checkValidEan(item.ean);
 
+          
 
           if (!dataLengowConfig.wimLengowConfig.flagCheckValidGTIN || isValidGTIN) {
             let categories = product.categories[0].replace(/^\/+|\/+$/g, '').split('/')
@@ -189,7 +193,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
               if (!parentProductIsPrinted) {
                 let itemQuantityArray = product.items.map((item) => {
-                  return checkValidEan(item.ean) ? item.sellers[0].commertialOffer.AvailableQuantity : 0;
+                  return (checkValidEan(item.ean) || !dataLengowConfig.wimLengowConfig.flagCheckValidGTIN) ? item.sellers[0].commertialOffer.AvailableQuantity : 0;
                 })
 
                 let sumQuantity = itemQuantityArray.reduce(
@@ -203,9 +207,11 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 })
 
                 if (foundIndex<0) {
-                  let imageSkuURL = ''
+                  let imageSkuURL = {}
                   if(typeof item.images !== "undefined" && item.images && item.images.length > 0){
-                    imageSkuURL = item.images[0].imageUrl;
+                    for(let i=0;i<item.images.length;i++){
+                      imageSkuURL[`image_url_${i+1}`] = item.images[i].imageUrl
+                    }
                   }
                   let productParentAux = {
                     product_id: product.productId,
@@ -215,7 +221,6 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
                     description: product.description,
                     category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
-                    image_URL: imageSkuURL,
                     [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                     [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                     [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
@@ -226,16 +231,21 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     keywords: `${product.metaTagDescription}`,
                     product_type: 'parent'
                   }
+                  productParentAux = {...productParentAux,...imageSkuURL}
 
                   categories.map((item, key) => {
                     productParentAux['sub_category' + (key + 1)] = item;
                   })
 
-                  numSKUSParent += 1;
-                 
-                  products.push(productParentAux)
-                  
-                  parentProductIsPrinted = true;
+                  product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
+                    productParentAux[specification_name] = product[specification_name][0];
+                  })
+
+                  if((excludeOutStock && sumQuantity > 0) || !excludeOutStock){
+                    numSKUSParent += 1;
+                    products.push(productParentAux)
+                    parentProductIsPrinted = true;
+                  }
                 } else {
                   products[foundIndex][`sale_price_${marketplace}`] = item.sellers[0].commertialOffer.Price
                   products[foundIndex][`barred_price_${marketplace}`] = item.sellers[0].commertialOffer.ListPrice
@@ -259,9 +269,11 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                   }
               }
 
-              let imageSkuURL = ''
+              let imageSkuURL = {}
               if(typeof item.images !== "undefined" && item.images && item.images.length > 0){
-                imageSkuURL = item.images[0].imageUrl;
+                for(let i=0;i<item.images.length;i++){
+                  imageSkuURL[`image_url_${i+1}`] = item.images[i].imageUrl
+                }
               }
               let productAux = {
                 product_id: `${product.productId}-${item.itemId}`,
@@ -272,7 +284,6 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 description: product.description,
                 ean: item.ean,
                 category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
-                image_URL: imageSkuURL,
                 [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                 [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                 [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
@@ -283,6 +294,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 product_type
                 //attributes: {attribute: item.variations}
               }
+              productAux = {...productAux,...imageSkuURL}
               if (product_type == 'simple') {
                 numSKUSSimple++;
               }
@@ -295,17 +307,24 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 productAux['sub_category' + (key + 1)] = item;
               })
 
-              item.variations && item.variations.map((item, key) => {
-                productAux[item.name] = item.values;
+              product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
+                productAux[specification_name] = product[specification_name][0];
               })
 
-              products.push(productAux)
+              item.variations && item.variations.map((variation_name, key) => {
+                productAux[variation_name] = item[variation_name][0];
+              })
 
-              numSKUSItems += 1;
-              if (isValidGTIN) {
-                validGTIN += 1;
+              
+
+              if((!excludeOutStock && item.sellers[0].commertialOffer.AvailableQuantity > 0) || !excludeOutStock){
+                products.push(productAux)
+                numSKUSItems += 1;
+                if (isValidGTIN) {
+                  validGTIN += 1;
+                }
+                numSKUFeed++;
               }
-              numSKUFeed++;
             } else {
               products[foundIndex2][`sale_price_${marketplace}`] = item.sellers[0].commertialOffer.Price
               products[foundIndex2][`barred_price_${marketplace}`] = item.sellers[0].commertialOffer.ListPrice

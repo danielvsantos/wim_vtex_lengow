@@ -30,7 +30,7 @@ class LengowLogs extends React.Component {
     handleStartDate(date) {
         this.setState({
             startDate: date
-        }, () => { this.getLogData() });
+        }, () => { this.props.logsLengow.refetch();  masterLogsData = this.props.logsLengow.logsLengow; this.getLogData() });
         
     }
 

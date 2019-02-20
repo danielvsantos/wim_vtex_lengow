@@ -182,9 +182,9 @@ class WimVtexLengowSetup extends Component {
                                 </Button>
                             </div>
                             <div className="w-50-ns center">
-                                <p>https://ACCOUNT.myvtex.com/integration/lengow/createFeed</p>
-                                <p>https://ACCOUNT.myvtex.com/integration/lengow/feed</p>
-                                <p>https://ACCOUNT.myvtex.com/integration/lengow/importorders</p>
+                                <p><a href="/integration/lengow/createFeed" target="_blank">https://ACCOUNT.myvtex.com/integration/lengow/createFeed</a> (to be a cronjob)</p>
+                                <p><a href="/integration/lengow/feed" target="_blank">https://ACCOUNT.myvtex.com/integration/lengow/feed</a></p>
+                                <p><a href="/integration/lengow/importorders" target="_blank">https://ACCOUNT.myvtex.com/integration/lengow/importorders</a> (to be a cronjob)</p>
                             </div>
                         </Tab>
                         <Tab label="Stats" active={this.state.currentTab === 2} onClick={() => this.handleTabChange(2)}>

@@ -104,11 +104,11 @@ export default class LengowConfig extends React.Component{
                             onChange={this.handleInputChange} />
                         </div>
 
-                        <div className="mb5">
+                        <div className="mb5 dn">
                             <Input className="tc pa2" label="Excluded SKU" helpText="Insert SKU excluded separated by `,`" type="text" id="listExludedSkus" name="listExludedSkus" value={lengow_config.listExludedSkus} onChange={this.handleInputChange}/>
                         </div>
 
-                        <div className="mb5">
+                        <div className="mb5 dn">
                             <Toggle className="tc pa2" label="Exclude Disabled SKU" id="flagExportDisableSKU" name="flagExportDisableSKU" checked={lengow_config.flagExportDisableSKU} onChange={(e) => this.handleInputChange(e, "flagExportDisableSKU")}/>
                         </div>
 
