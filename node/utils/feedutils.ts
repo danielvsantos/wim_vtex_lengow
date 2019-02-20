@@ -317,7 +317,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
               
 
-              if((!excludeOutStock && item.sellers[0].commertialOffer.AvailableQuantity > 0) || !excludeOutStock){
+              if((excludeOutStock && item.sellers[0].commertialOffer.AvailableQuantity > 0) || !excludeOutStock){
                 products.push(productAux)
                 numSKUSItems += 1;
                 if (isValidGTIN) {
@@ -400,7 +400,9 @@ export const createFeed = async(ctx) => {
         console.log('Entro en generar de nuevo')
         xmlProducts = await getProductsXML(account, authToken)
         console.log('Lectura de IDs de producto de Feed original XML finalizada')
-        await vbase.saveFile({ product: products });
+        if(xmlProducts){
+          await vbase.saveFile({ product: products });
+        }
       }
       
       if (!xmlProducts) {
@@ -445,7 +447,7 @@ export const createFeed = async(ctx) => {
           for(let i=0;i<mapSalesChannels.length;i++){
             let result = <any>{};
             let saleChannelObject = mapSalesChannels[i]
-            result = await axios.get(productSeachEndPoinut + query + `sc=${saleChannelObject.id}`, { headers })
+            result = await axios.get(productSeachEndPoinut + query + `sc=${saleChannelObject.id}&v=${new Date().getTime()}`, { headers })
             .catch(function (error) {
               //console.log(error)
             });
