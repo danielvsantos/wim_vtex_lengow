@@ -237,9 +237,13 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     productParentAux['sub_category' + (key + 1)] = item;
                   })
 
+                  //TODO Hasta que no este el mapper, esto no se puede hacer porque exporta cosas raras como en drim y el DatosAdicionales
                   product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
-                    productParentAux[specification_name] = product[specification_name][0];
+                    if(specification_name == 'RefProveedor' || specification_name == 'AmazonAsin'){
+                      productParentAux[specification_name] = product[specification_name][0];
+                    }
                   })
+                  
 
                   if((excludeOutStock && sumQuantity > 0) || !excludeOutStock){
                     numSKUSParent += 1;
@@ -306,10 +310,13 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
               categories.map((item, key) => {
                 productAux['sub_category' + (key + 1)] = item;
               })
-
+              //TODO Hasta que no este el mapper, esto no se puede hacer porque exporta cosas raras como en drim y el DatosAdicionales
               product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
-                productAux[specification_name] = product[specification_name][0];
+                if(specification_name == 'RefProveedor' || specification_name == 'AmazonAsin'){
+                  productAux[specification_name] = product[specification_name][0];
+                }
               })
+              
 
               item.variations && item.variations.map((variation_name, key) => {
                 productAux[variation_name] = item[variation_name][0];
