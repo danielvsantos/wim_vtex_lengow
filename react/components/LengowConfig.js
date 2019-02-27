@@ -2,10 +2,11 @@ import React from 'react'
 
 import { Button,Input,Toggle, Dropdown} from 'vtex.styleguide'
 import AdderLineSalesChannel from './AdderLineSalesChannel'
+import AdderLineManualMapper from './AdderLineManualMapper';
 
 export default class LengowConfig extends React.Component{
     constructor(props) {
-        super(props)    
+        super(props)  
     }
 
     handleInputChange = (event, objectName=null) => {
@@ -27,7 +28,7 @@ export default class LengowConfig extends React.Component{
              })*/
  
          }
-       }
+       } 
 
     render(){
         const lengow_config = this.props.lengowConfig;
@@ -90,6 +91,26 @@ export default class LengowConfig extends React.Component{
                             value={lengow_config.salesChannel}
                             initialValue={lengow_config.salesChannel}
                             onChange={this.handleInputChange} />*/}
+                        </div>
+
+                        <div className="mb5">
+                            <AdderLineManualMapper
+                            componentName="wimvtexlengow.mapper-product-specs"
+                            specName="productSpecifications"
+                            specCounterName="numProductSpecifications"
+                            onAddLineSpec={this.props.onAddLineSpec}
+                            specs={lengow_config.productSpecifications}
+                            onChangeArray={this.props.onChangeArray} />
+                        </div>
+
+                        <div className="mb5">
+                            <AdderLineManualMapper
+                            componentName="wimvtexlengow.mapper-sku-specs"
+                            specName="skuSpecifications"
+                            specCounterName="numSkuSpecifications"
+                            onAddLineSpec={this.props.onAddLineSpec}
+                            specs={lengow_config.skuSpecifications}
+                            onChangeArray={this.props.onChangeArray} />
                         </div>
 
                         <div className="mb5">

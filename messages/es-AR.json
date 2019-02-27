@@ -1,5 +1,7 @@
 {
   "wimvtexlengow.admin-menu-button": "WIM Lengow Integration",
+  "wimvtexlengow.mapper-sku-specs": "Mapper Sku Specifications",
+  "wimvtexlengow.mapper-product-specs": "Mapper Product Specifications",
   "getting-started.title": "VTEX Render - Primeros pasos",
   "getting-started.greeting": "Bienvenido al Primero Tutorial del VTEX Render!",
   "getting-started.description": "Ese es un tutorial interactivo. La idea es descubrir las features del Render editando una app.",

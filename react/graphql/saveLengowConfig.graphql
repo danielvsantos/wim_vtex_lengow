@@ -8,6 +8,8 @@ mutation saveLengowConfig($data: wimLengowConfigInput){
     prefixAffiliateID,
     boolSandbox,
     salesChannel,
+    productSpecifications,
+    skuSpecifications,
     flagExportDisableSKU,
     flagExportOutOfStockSKU,
     flagCheckValidGTIN,

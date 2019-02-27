@@ -35,6 +35,8 @@ class WimVtexLengowSetup extends Component {
                 domainShop: '',
                 boolSandbox: true,
                 salesChannel: [],
+                productSpecifications: [],
+                skuSpecifications: [],
                 flagExportDisableSKU: true,
                 flagExportOutOfStockSKU: true,
                 listExludedSkus: '',
@@ -42,6 +44,8 @@ class WimVtexLengowSetup extends Component {
                 feedFormat: 'json',
                 domainShop: ''
             },
+            numProductSpecifications: 1,
+            numSkuSpecifications: 1,
             loading: this.props.wimLengowConfig.loading,
             disabled_save: false,
             currentTab: 1
@@ -51,21 +55,51 @@ class WimVtexLengowSetup extends Component {
             this.state.loading = true;
             this.props.wimLengowConfig.refetch().then(res => {
                 let lengow_config = res.data.wimLengowConfig;
-                try{
+                if(lengow_config){
+                    try{
+                        
+                        if(!lengow_config.salesChannel){
+                            lengow_config.salesChannel = []
+                        }else{
+                            lengow_config.salesChannel = JSON.parse(lengow_config.salesChannel)
+                        }
+                        if(!Array.isArray(lengow_config.salesChannel)){
+                            lengow_config.salesChannel = []
+                        }
+                    }catch(e){
+                        lengow_config.salesChannel = []
+                    }
+                    try{
+                        
+                        if(!lengow_config.productSpecifications){
+                            lengow_config.productSpecifications = []
+                        }else{
+                            lengow_config.productSpecifications = JSON.parse(lengow_config.productSpecifications)
+                        }
+                        if(!Array.isArray(lengow_config.productSpecifications)){
+                            lengow_config.productSpecifications = []
+                        }
+                    }catch(e){
+                        lengow_config.productSpecifications = []
+                    }
+                    try{
+                        
+                        if(!lengow_config.skuSpecifications){
+                            lengow_config.skuSpecifications = []
+                        }else{
+                            lengow_config.skuSpecifications = JSON.parse(lengow_config.skuSpecifications)
+                        }
+                        if(!Array.isArray(lengow_config.skuSpecifications)){
+                            lengow_config.skuSpecifications = []
+                        }
+                    }catch(e){
+                        lengow_config.skuSpecifications = []
+                    }
                     
-                    if(!lengow_config.salesChannel){
-                        lengow_config.salesChannel = []
-                    }else{
-                        lengow_config.salesChannel = JSON.parse(lengow_config.salesChannel)
-                    }
-                    if(!Array.isArray(lengow_config.salesChannel)){
-                        lengow_config.salesChannel = []
-                    }
-                }catch(e){
-                    lengow_config.salesChannel = []
+                    this.setState({ lengow_config, loading: false });
+                    this.state.numProductSpecifications = lengow_config.productSpecifications.length + 1
+                    this.state.numSkuSpecifications = lengow_config.skuSpecifications.length + 1
                 }
-
-                this.setState({ lengow_config, loading: false });
             });
         }
 
@@ -102,6 +136,8 @@ class WimVtexLengowSetup extends Component {
 
         let lengow_config = {...this.state.lengow_config};
         lengow_config.salesChannel = JSON.stringify(lengow_config.salesChannel)
+        lengow_config.productSpecifications = JSON.stringify(lengow_config.productSpecifications)
+        lengow_config.skuSpecifications = JSON.stringify(lengow_config.skuSpecifications)
         const options = {
             variables: {
                 data: lengow_config
@@ -123,8 +159,7 @@ class WimVtexLengowSetup extends Component {
             let lengowConfig = nextProps.wimLengowConfig.wimLengowConfig
 
             if (nextProps.wimLengowConfig.wimLengowConfig) {
-                try{
-                    
+                try{ 
                     if(!lengowConfig.salesChannel){
                         lengowConfig.salesChannel = []
                     }else{
@@ -136,10 +171,36 @@ class WimVtexLengowSetup extends Component {
                 }catch(e){
                     lengowConfig.salesChannel = []
                 }
+                try{
+                    if(!lengowConfig.productSpecifications){
+                        lengowConfig.productSpecifications = []
+                    }else{
+                        lengowConfig.productSpecifications = JSON.parse(lengowConfig.productSpecifications)
+                    }
+                    if(!Array.isArray(lengowConfig.productSpecifications)){
+                        lengowConfig.productSpecifications = []
+                    }
+                }catch(e){
+                    lengowConfig.productSpecifications = []
+                }
+                try{
+                    if(!lengowConfig.skuSpecifications){
+                        lengowConfig.skuSpecifications = []
+                    }else{
+                        lengowConfig.skuSpecifications = JSON.parse(lengowConfig.skuSpecifications)
+                    }
+                    if(!Array.isArray(lengowConfig.skuSpecifications)){
+                        lengowConfig.skuSpecifications = []
+                    }
+                }catch(e){
+                    lengowConfig.skuSpecifications = []
+                }
                 this.setState({
                     lengow_config: lengowConfig,
                     loading: nextProps.wimLengowConfig.loading
                 })
+                this.state.numProductSpecifications = lengowConfig.productSpecifications.length + 1
+                this.state.numSkuSpecifications = lengowConfig.skuSpecifications.length + 1
             } else {
                 this.setState({
                     loading: nextProps.wimLengowConfig.loading
@@ -153,6 +214,11 @@ class WimVtexLengowSetup extends Component {
         this.setState({
             currentTab: tabIndex,
         })
+    }
+
+    handleAddLineSpecifications = (name,counterName) => {
+        this.handleInputChangeArray(`${name}`, null, { id: `${name}-${this.state[counterName]}`, specName: '', specXML: '' }, "create")
+        this.state[counterName]+=1
     }
 
 
@@ -174,7 +240,7 @@ class WimVtexLengowSetup extends Component {
                     <Tabs>
                         <Tab label="Config" active={this.state.currentTab === 1} onClick={() => this.handleTabChange(1)}>
                             <LengowConfig lengowConfig={this.state.lengow_config} salesChannel={this.props.salesChannel.salesChannel}
-                                hosts={this.props.getHosts.accountDomainHosts} onChangeArray={this.handleInputChangeArray} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
+                                hosts={this.props.getHosts.accountDomainHosts} onChangeArray={this.handleInputChangeArray} onAddLineSpec={this.handleAddLineSpecifications} onChange={this.handleInputChange} saveProductForm={this.saveProductForm} />
 
                             <div className="w-50-ns center">
                                 <Button disabled={this.state.disabled_save} className="tc pa2" onClick={this.saveProductForm}>
