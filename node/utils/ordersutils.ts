@@ -470,6 +470,8 @@ export const lengowConfig = `query{
       prefixAffiliateID,
       boolSandbox,
       salesChannel,
+      productSpecifications,
+      skuSpecifications,
       flagExportDisableSKU,
       flagExportOutOfStockSKU,
       flagCheckValidGTIN,

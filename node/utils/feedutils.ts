@@ -154,6 +154,8 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
   let products = [];
 
   let excludeOutStock = dataLengowConfig.wimLengowConfig.flagExportOutOfStockSKU;
+  let productSpecs = JSON.parse(dataLengowConfig.wimLengowConfig.productSpecifications);
+  let skuSpecs = JSON.parse(dataLengowConfig.wimLengowConfig.skuSpecifications);
 
   productsPerMkSC.map((marketplaceProducts) => {
 
@@ -220,7 +222,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     brand: product.brand,
                     link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
                     description: product.description,
-                    category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
+                    category: product.categories[0].replace(/^\/+|\/+$/g, '').split('/').join(' > '),
                     [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                     [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                     [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
@@ -237,9 +239,9 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     productParentAux['sub_category' + (key + 1)] = item;
                   })
 
-                  //TODO Hasta que no este el mapper, esto no se puede hacer porque exporta cosas raras como en drim y el DatosAdicionales
                   product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
-                    if(specification_name == 'RefProveedor' || specification_name == 'AmazonAsin'){
+                    let productSpecExport = productSpecs.find( spec => spec['specName'] === specification_name );
+                    if (productSpecExport) {
                       productParentAux[specification_name] = product[specification_name][0];
                     }
                   })
@@ -287,7 +289,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 link: product.link.replace(`${account}.vtexcommercestable.com.br`, dataLengowConfig.wimLengowConfig.domainShop),
                 description: product.description,
                 ean: item.ean,
-                category: product.categories[0].replace(/^\/+|\/+$/g, '').replace('/', ' > '),
+                category: product.categories[0].replace(/^\/+|\/+$/g, '').split('/').join(' > '),
                 [`sale_price_${marketplace}`]: item.sellers[0].commertialOffer.Price,
                 [`barred_price_${marketplace}`]: item.sellers[0].commertialOffer.ListPrice,
                 [`price_including_tax_${marketplace}`]: item.sellers[0].commertialOffer.Price,
@@ -310,16 +312,20 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
               categories.map((item, key) => {
                 productAux['sub_category' + (key + 1)] = item;
               })
-              //TODO Hasta que no este el mapper, esto no se puede hacer porque exporta cosas raras como en drim y el DatosAdicionales
+
               product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
-                if(specification_name == 'RefProveedor' || specification_name == 'AmazonAsin'){
-                  productAux[specification_name] = product[specification_name][0];
+                let productSpecExport = productSpecs.find( spec => spec['specName'] === specification_name );
+                if (productSpecExport) {
+                  productAux[productSpecExport.specXML] = product[specification_name][0];
                 }
               })
               
 
               item.variations && item.variations.map((variation_name, key) => {
-                productAux[variation_name] = item[variation_name][0];
+                let skuSpecExport = skuSpecs.find( spec => spec['specName'] === variation_name );
+                if (skuSpecExport) {
+                  productAux[skuSpecExport.specXML] = item[variation_name][0];
+                }
               })
 
               
