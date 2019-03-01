@@ -47,7 +47,7 @@ export const getProductsXML = async (account, authToken) => {
   let response = <any>{};
   response = await axios.get(xmlRequestInfo.url, { headers: xmlRequestInfo.headers })
     .catch(function (error) {
-      console.log('ERROR ON Fetch XML ',error.data)
+      console.log('ERROR ON Fetch XML ', { ...error.config.url, ...error.response.status, ...error.response.statusText, ...error.response.headers })
       return false;
     });
 
@@ -165,7 +165,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
       APIProductArray.map((product) => {
         let parentProductIsPrinted = false;
-        
+
         product.items.map((item, key) => {
 
 
@@ -180,7 +180,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
           isValidGTIN = checkValidEan(item.ean);
 
-          
+
 
           if (!dataLengowConfig.wimLengowConfig.flagCheckValidGTIN || isValidGTIN) {
             let categories = product.categories[0].replace(/^\/+|\/+$/g, '').split('/')
@@ -188,7 +188,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
 
             if (uniqueItem) {
               product_type = 'simple'
-              
+
             }
             else {
               product_type = 'child'
@@ -202,17 +202,17 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                   (itemAnterior, itemActual) => itemAnterior + itemActual
                 );
 
-                
+
 
                 let foundIndex = products.findIndex((productFind) => {
                   return productFind.product_id == product.productId
                 })
 
-                if (foundIndex<0) {
+                if (foundIndex < 0) {
                   let imageSkuURL = {}
-                  if(typeof item.images !== "undefined" && item.images && item.images.length > 0){
-                    for(let i=0;i<item.images.length;i++){
-                      imageSkuURL[`image_url_${i+1}`] = item.images[i].imageUrl
+                  if (typeof item.images !== "undefined" && item.images && item.images.length > 0) {
+                    for (let i = 0; i < item.images.length; i++) {
+                      imageSkuURL[`image_url_${i + 1}`] = item.images[i].imageUrl
                     }
                   }
                   let productParentAux = {
@@ -233,21 +233,23 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     keywords: `${product.metaTagDescription}`,
                     product_type: 'parent'
                   }
-                  productParentAux = {...productParentAux,...imageSkuURL}
+                  productParentAux = { ...productParentAux, ...imageSkuURL }
 
                   categories.map((item, key) => {
                     productParentAux['sub_category' + (key + 1)] = item;
                   })
 
                   product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
-                    let productSpecExport = productSpecs.find( spec => spec['specName'] === specification_name );
-                    if (productSpecExport) {
-                      productParentAux[specification_name] = product[specification_name][0];
+                    if (productSpecs && productSpecs.length > 0) {
+                      let productSpecExport = productSpecs.find(spec => spec['specName'] === specification_name);
+                      if (productSpecExport) {
+                        productParentAux[specification_name] = product[specification_name][0];
+                      }
                     }
                   })
-                  
 
-                  if((excludeOutStock && sumQuantity > 0) || !excludeOutStock){
+
+                  if ((excludeOutStock && sumQuantity > 0) || !excludeOutStock) {
                     numSKUSParent += 1;
                     products.push(productParentAux)
                     parentProductIsPrinted = true;
@@ -256,7 +258,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                   products[foundIndex][`sale_price_${marketplace}`] = item.sellers[0].commertialOffer.Price
                   products[foundIndex][`barred_price_${marketplace}`] = item.sellers[0].commertialOffer.ListPrice
                   products[foundIndex][`price_including_tax_${marketplace}`] = item.sellers[0].commertialOffer.Price
-                  products[foundIndex][`quantity_in_stock_${marketplace}`]= sumQuantity
+                  products[foundIndex][`quantity_in_stock_${marketplace}`] = sumQuantity
                 }
               }
             }
@@ -265,20 +267,20 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
               return productFind.product_id == `${product.productId}-${item.itemId}`
             })
 
-            if (foundIndex2<0) {
+            if (foundIndex2 < 0) {
 
               let refId = '';
-              if(item.referenceId){
-                  let refArray = item.referenceId.filter(ele => ele.Key == 'RefId')
-                  if(refArray.length){
-                    refId = refArray[0].Value
-                  }
+              if (item.referenceId) {
+                let refArray = item.referenceId.filter(ele => ele.Key == 'RefId')
+                if (refArray.length) {
+                  refId = refArray[0].Value
+                }
               }
 
               let imageSkuURL = {}
-              if(typeof item.images !== "undefined" && item.images && item.images.length > 0){
-                for(let i=0;i<item.images.length;i++){
-                  imageSkuURL[`image_url_${i+1}`] = item.images[i].imageUrl
+              if (typeof item.images !== "undefined" && item.images && item.images.length > 0) {
+                for (let i = 0; i < item.images.length; i++) {
+                  imageSkuURL[`image_url_${i + 1}`] = item.images[i].imageUrl
                 }
               }
               let productAux = {
@@ -300,7 +302,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 product_type
                 //attributes: {attribute: item.variations}
               }
-              productAux = {...productAux,...imageSkuURL}
+              productAux = { ...productAux, ...imageSkuURL }
               if (product_type == 'simple') {
                 numSKUSSimple++;
               }
@@ -314,23 +316,27 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
               })
 
               product.allSpecifications && product.allSpecifications.map((specification_name, key) => {
-                let productSpecExport = productSpecs.find( spec => spec['specName'] === specification_name );
-                if (productSpecExport) {
-                  productAux[productSpecExport.specXML] = product[specification_name][0];
+                if (productSpecs && productSpecs.length > 0) {
+                  let productSpecExport = productSpecs.find(spec => spec['specName'] === specification_name);
+                  if (productSpecExport) {
+                    productAux[productSpecExport.specXML] = product[specification_name][0];
+                  }
                 }
               })
-              
+
 
               item.variations && item.variations.map((variation_name, key) => {
-                let skuSpecExport = skuSpecs.find( spec => spec['specName'] === variation_name );
-                if (skuSpecExport) {
-                  productAux[skuSpecExport.specXML] = item[variation_name][0];
+                if (skuSpecs && skuSpecs.length > 0) {
+                  let skuSpecExport = skuSpecs.find(spec => spec['specName'] === variation_name);
+                  if (skuSpecExport) {
+                    productAux[skuSpecExport.specXML] = item[variation_name][0];
+                  }
                 }
               })
 
-              
 
-              if((excludeOutStock && item.sellers[0].commertialOffer.AvailableQuantity > 0) || !excludeOutStock){
+
+              if ((excludeOutStock && item.sellers[0].commertialOffer.AvailableQuantity > 0) || !excludeOutStock) {
                 products.push(productAux)
                 numSKUSItems += 1;
                 if (isValidGTIN) {
@@ -363,172 +369,173 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
   }
 }
 
-export const createFeed = async(ctx) => {
+export const createFeed = async (ctx) => {
   const { response: res, vtex: ioContext } = ctx
-      const { account, authToken } = ioContext
+  const { account, authToken } = ioContext
 
-      const vbaseLogsLengow = VBaseClient(ioContext, `logsLengow.txt`)
-      const fileName = `wimLengowFeed.txt`
-      let responseLogsLengow = <any>{};
-      responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
+  const vbaseLogsLengow = VBaseClient(ioContext, `logsLengow.txt`)
+  const fileName = `wimLengowFeed.txt`
+  let responseLogsLengow = <any>{};
+  responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
 
-      var logsLengowData = []
-      if (responseLogsLengow.data) {
-        logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+  var logsLengowData = []
+  if (responseLogsLengow.data) {
+    logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+  }
+
+  logsLengowData.push({
+    orderID: 'XML-GENERATION',
+    type: 'start',
+    msg: 'Call to XML Generation started',
+    date: moment()
+  })
+  vbaseLogsLengow.saveFile(logsLengowData);
+
+
+  const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
+
+  const graphQLClient = new GraphQLClient(endpoint, {
+    headers: {
+      'Authorization': authToken,
+    }
+  })
+
+  let dataLengowConfig = <any>{};
+  dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+  let mapSalesChannels = JSON.parse(dataLengowConfig.wimLengowConfig.salesChannel)
+
+  const vbase = VBaseClient(ioContext, fileName)
+  const vBaseLengowConfig = VBaseClient(ioContext, 'wimVtexLengow.txt');
+  let products = [];
+  let xmlProducts = []
+  if (dataLengowConfig.wimLengowConfig.xmlProductIds) {
+    console.log('Entro en generar siguiente')
+    xmlProducts = JSON.parse(dataLengowConfig.wimLengowConfig.xmlProductIds)
+    let response = <any>{};
+    response = await vbase.getFile().catch(notFound())
+    products = JSON.parse(response.data.toString()).product
+    console.log('Lectura de IDs de producto desde guardado parcial finalizado')
+  } else {
+    console.log('Entro en generar de nuevo')
+    xmlProducts = await getProductsXML(account, authToken)
+    console.log('Lectura de IDs de producto de Feed original XML finalizada')
+    if (xmlProducts) {
+      await vbase.saveFile({ product: products });
+    }
+  }
+
+  if (!xmlProducts) {
+    console.log(`ERROR XML-GENERATION There's no product on Feed`)
+    logsLengowData.push({
+      orderID: 'XML-GENERATION',
+      type: 'error',
+      msg: `There's no product on Feed`,
+      date: moment()
+    })
+    vbaseLogsLengow.saveFile(logsLengowData);
+    ctx.response.body = {
+      result: "There's no product on Feed"
+    }
+    return false;
+  }
+
+  let numSKUSParent = 0;
+  let numSKUSItems = 0;
+  let validGTIN = 0;
+  let numSKUFeed = 0;
+  let numSKUSSimple = 0;
+  let numSKUSChild = 0;
+
+  let count = 0;
+  let query = '';
+  let totalCount = 0;
+
+  let xmlProductsAux = [...xmlProducts];
+  for (let x = 0; x < xmlProducts.length; x++) {
+
+    query += 'fq=productId:' + xmlProducts[x] + '&'
+    count++;
+    if (count == 50 || x == xmlProducts.length - 1) {
+      const productSeachEndPoinut = `http://${account}.vtexcommercestable.com.br/api/catalog_system/pub/products/search/?`
+      const headers = {
+        'VtexIdclientAutCookie': authToken,
+        'Proxy-Authorization': authToken,
+        'X-Vtex-Proxy-To': `https://${account}.vtexcommercestable.com.br`,
       }
 
-      logsLengowData.push({
-        orderID: 'XML-GENERATION',
-        type: 'start',
-        msg: 'Call to XML Generation started',
-        date: moment()
-      })
-      vbaseLogsLengow.saveFile(logsLengowData);
+      let productsPerMkSC = <any>[];
+      for (let i = 0; i < mapSalesChannels.length; i++) {
+        let result = <any>{};
+        let saleChannelObject = mapSalesChannels[i]
+        result = await axios.get(productSeachEndPoinut + query + `sc=${saleChannelObject.id}&v=${new Date().getTime()}`, { headers })
+          .catch(function (error) {
+            //console.log(error)
+          });
 
-
-      const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
-
-      const graphQLClient = new GraphQLClient(endpoint, {
-        headers: {
-          'Authorization': authToken,
-        }
-      })
-
-      let dataLengowConfig = <any>{};
-      dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
-      let mapSalesChannels = JSON.parse(dataLengowConfig.wimLengowConfig.salesChannel)
-
-      const vbase = VBaseClient(ioContext, fileName)
-      const vBaseLengowConfig = VBaseClient(ioContext, 'wimVtexLengow.txt');
-      let products = [];
-      let xmlProducts = []
-      if(dataLengowConfig.wimLengowConfig.xmlProductIds){
-        console.log('Entro en generar siguiente')
-        xmlProducts = JSON.parse(dataLengowConfig.wimLengowConfig.xmlProductIds)
-        let response = <any>{};
-        response = await vbase.getFile().catch(notFound())
-        products = JSON.parse(response.data.toString()).product
-        console.log('Lectura de IDs de producto desde guardado parcial finalizado')
-      }else{
-        console.log('Entro en generar de nuevo')
-        xmlProducts = await getProductsXML(account, authToken)
-        console.log('Lectura de IDs de producto de Feed original XML finalizada')
-        if(xmlProducts){
-          await vbase.saveFile({ product: products });
+        if (typeof result !== "undefined" && typeof result.data !== "undefined" && result.data) {
+          productsPerMkSC.push({ marketplace: saleChannelObject.name, products: result.data })
         }
       }
-      
-      if (!xmlProducts) {
-        logsLengowData.push({
-          orderID: 'XML-GENERATION',
-          type: 'error',
-          msg: `There's no product on Feed`,
-          date: moment()
-        })
-        vbaseLogsLengow.saveFile(logsLengowData);
-        ctx.response.body = {
-          result: "There's no product on Feed"
-        }
-        return false;
+
+      let formatedProducts = formatProductFeed(productsPerMkSC, dataLengowConfig, account)
+
+      try {
+        products = [...products, ...formatedProducts.products]
+      } catch (e) {
+        console.log('Error', typeof products);
       }
+      numSKUSParent += formatedProducts.numSKUSParent
+      numSKUSItems += formatedProducts.numSKUSItems
+      validGTIN += formatedProducts.validGTIN
+      numSKUFeed += formatedProducts.numSKUFeed
+      numSKUSSimple += formatedProducts.numSKUSSimple
+      numSKUSChild += formatedProducts.numSKUSChild
 
-      let numSKUSParent = 0;
-      let numSKUSItems = 0;
-      let validGTIN = 0;
-      let numSKUFeed = 0;
-      let numSKUSSimple = 0;
-      let numSKUSChild = 0;
-
-      let count = 0;
-      let query = '';
-      let totalCount = 0;
-
-      let xmlProductsAux = [...xmlProducts];
-      for (let x = 0; x < xmlProducts.length; x++) {
-
-        query += 'fq=productId:' + xmlProducts[x] + '&'
-        count++;
-        if (count == 50 || x == xmlProducts.length - 1) {
-          const productSeachEndPoinut = `http://${account}.vtexcommercestable.com.br/api/catalog_system/pub/products/search/?`
-          const headers = {
-            'VtexIdclientAutCookie': authToken,
-            'Proxy-Authorization': authToken,
-            'X-Vtex-Proxy-To': `https://${account}.vtexcommercestable.com.br`,
-          }
-
-          let productsPerMkSC = <any>[];
-          for(let i=0;i<mapSalesChannels.length;i++){
-            let result = <any>{};
-            let saleChannelObject = mapSalesChannels[i]
-            result = await axios.get(productSeachEndPoinut + query + `sc=${saleChannelObject.id}&v=${new Date().getTime()}`, { headers })
-            .catch(function (error) {
-              //console.log(error)
-            });
- 
-            if(typeof result !== "undefined" && typeof result.data !== "undefined" && result.data){
-              productsPerMkSC.push({ marketplace: saleChannelObject.name, products:result.data})
-            }
-          }
-          
-          let formatedProducts = formatProductFeed(productsPerMkSC, dataLengowConfig, account)
-
-          try{
-            products = [...products, ...formatedProducts.products]
-          }catch(e){
-            console.log('Error',typeof products);
-          }
-          numSKUSParent += formatedProducts.numSKUSParent
-          numSKUSItems += formatedProducts.numSKUSItems
-          validGTIN += formatedProducts.validGTIN
-          numSKUFeed += formatedProducts.numSKUFeed
-          numSKUSSimple += formatedProducts.numSKUSSimple
-          numSKUSChild += formatedProducts.numSKUSChild
-
-          totalCount+=count;
-          query = '';
-          count = 0;
-          xmlProductsAux.splice(0,50);
-          //console.log('GUARDO BATCH #',totalCount);
-          await vbase.saveFile({ product: products });
-          if(xmlProductsAux.length){
-            dataLengowConfig.wimLengowConfig.xmlProductIds = JSON.stringify(xmlProductsAux)
-          }else{
-            dataLengowConfig.wimLengowConfig.xmlProductIds = ''
-          }
-          await vBaseLengowConfig.saveFile(dataLengowConfig.wimLengowConfig)
-          
-        }
-
-
+      totalCount += count;
+      query = '';
+      count = 0;
+      xmlProductsAux.splice(0, 50);
+      //console.log('GUARDO BATCH #',totalCount);
+      await vbase.saveFile({ product: products });
+      if (xmlProductsAux.length) {
+        dataLengowConfig.wimLengowConfig.xmlProductIds = JSON.stringify(xmlProductsAux)
+      } else {
+        dataLengowConfig.wimLengowConfig.xmlProductIds = ''
       }
-
-      let date = new Date().toISOString().
-        replace(/T/, ' ').      // replace T with a space
-        replace(/\..+/, '')     // delete the dot and everything after
-
-      dataLengowConfig.wimLengowConfig.lastDateGenerated = date;
       await vBaseLengowConfig.saveFile(dataLengowConfig.wimLengowConfig)
 
-      numSKUSParent = products.filter(item => item.product_type == 'parent').length
-      numSKUSSimple = products.filter(item => item.product_type == 'simple').length
-      numSKUSItems =  numSKUSParent + numSKUSSimple//CUENTA DE LOS SKUS parent + simple
-      numSKUSChild = products.filter(item => item.product_type == 'child').length
-      numSKUFeed = products.length //CUENTA DE TODOS LOS SKUS (parent, simple, children) en el FEED
-      let result = {
-        numSKUSItems,
-        numSKUSSimple,
-        numSKUSParent,
-        numSKUSChild,
-        numSKUFeed
-      }
+    }
 
-      logsLengowData.push({
-        orderID: 'XML-GENERATION',
-        type: 'success',
-        msg: JSON.stringify(result),
-        date: moment()
-      })
-      vbaseLogsLengow.saveFile(logsLengowData);
 
-      ctx.response.body = result
+  }
+
+  let date = new Date().toISOString().
+    replace(/T/, ' ').      // replace T with a space
+    replace(/\..+/, '')     // delete the dot and everything after
+
+  dataLengowConfig.wimLengowConfig.lastDateGenerated = date;
+  await vBaseLengowConfig.saveFile(dataLengowConfig.wimLengowConfig)
+
+  numSKUSParent = products.filter(item => item.product_type == 'parent').length
+  numSKUSSimple = products.filter(item => item.product_type == 'simple').length
+  numSKUSItems = numSKUSParent + numSKUSSimple//CUENTA DE LOS SKUS parent + simple
+  numSKUSChild = products.filter(item => item.product_type == 'child').length
+  numSKUFeed = products.length //CUENTA DE TODOS LOS SKUS (parent, simple, children) en el FEED
+  let result = {
+    numSKUSItems,
+    numSKUSSimple,
+    numSKUSParent,
+    numSKUSChild,
+    numSKUFeed
+  }
+
+  logsLengowData.push({
+    orderID: 'XML-GENERATION',
+    type: 'success',
+    msg: JSON.stringify(result),
+    date: moment()
+  })
+  vbaseLogsLengow.saveFile(logsLengowData);
+
+  ctx.response.body = result
 }
