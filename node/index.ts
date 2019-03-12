@@ -2,6 +2,7 @@
 const moment = require('moment')
 import axios from 'axios'
 import { GraphQLClient } from 'graphql-request'
+import {resolvers} from './graphql/index'
 
 //Internal imports
 import { notFound } from './utils/status'
@@ -52,7 +53,7 @@ export default {
       const { account, authToken } = ioContext
 
       setDefaultHeaders(res);
-
+      /* YA NO PODEMOS SACAR NADA DE GRAPHQL
       const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}`
 
       const graphQLClient = new GraphQLClient(endpoint, {
@@ -60,9 +61,14 @@ export default {
           'Authorization': authToken,
         }
       })
+      */
 
       let dataLengowConfig = <any>{};
-      dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+      //dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+      dataLengowConfig =
+        {
+          wimLengowConfig: await resolvers.Query.wimLengowConfig('', '', ctx)
+        }
 
       const vbaseProducts = VBaseClient(ioContext, fileName)
       let response = <any>{};

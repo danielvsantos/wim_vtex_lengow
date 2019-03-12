@@ -2,6 +2,7 @@ import { validate } from 'gtin'
 import axios from 'axios'
 const moment = require('moment')
 import { GraphQLClient } from 'graphql-request'
+import { resolvers } from '../graphql/index'
 
 import { notFound } from '../utils/status'
 import VBaseClient from '../vbase'
@@ -391,7 +392,7 @@ export const createFeed = async (ctx) => {
   })
   vbaseLogsLengow.saveFile(logsLengowData);
 
-
+  /* YA NO PODEMOS SACAR NADA DE GRAPHQL
   const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
 
   const graphQLClient = new GraphQLClient(endpoint, {
@@ -399,9 +400,15 @@ export const createFeed = async (ctx) => {
       'Authorization': authToken,
     }
   })
+  */
 
   let dataLengowConfig = <any>{};
-  dataLengowConfig = await graphQLClient.request(orderUtils.lengowConfig)
+  //dataLengowConfig = graphQLClient.request(orderUtils.lengowConfig)
+  dataLengowConfig =
+    {
+      wimLengowConfig: await resolvers.Query.wimLengowConfig('', '', ctx)
+    } 
+
   let mapSalesChannels = JSON.parse(dataLengowConfig.wimLengowConfig.salesChannel)
 
   const vbase = VBaseClient(ioContext, fileName)

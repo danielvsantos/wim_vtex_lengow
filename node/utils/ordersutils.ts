@@ -1,5 +1,6 @@
 import { errorResponse } from './error'
 import { GraphQLClient } from 'graphql-request'
+import {resolvers} from '../graphql/index'
 
 import axios from 'axios'
 const querystring = require('querystring');
@@ -122,6 +123,7 @@ export const getAddonConfig = async(ctx) => {
     const {request: req, response: res,vtex: ioContext} = ctx
     const {account, authToken} = ioContext
 
+    /* YA NO PODEMOS SACAR NADA DE GRAPHQL
     const endpoint = `http://${account}.myvtex.com/_v/graphql/public/v1?workspace=${ioContext.workspace}&cache=${new Date().getMilliseconds()}`
 
     const graphQLClient = new GraphQLClient(endpoint, {
@@ -131,6 +133,12 @@ export const getAddonConfig = async(ctx) => {
     })
 
     let dataLengowConfig = await graphQLClient.request(lengowConfig)
+    */
+    let dataLengowConfig = <any>{}
+    dataLengowConfig = 
+    {
+      wimLengowConfig: await resolvers.Query.wimLengowConfig('', '', ctx)
+    } 
     return dataLengowConfig;
 }
 
