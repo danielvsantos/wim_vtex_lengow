@@ -244,7 +244,7 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     if (productSpecs && productSpecs.length > 0) {
                       let productSpecExport = productSpecs.find(spec => spec['specName'] === specification_name);
                       if (productSpecExport) {
-                        productParentAux[specification_name] = product[specification_name][0];
+                        productParentAux[productSpecExport.specXML] = product[specification_name][0];
                       }
                     }
                   })
