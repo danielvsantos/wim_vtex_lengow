@@ -202,7 +202,7 @@ export const importOrders = async (ctx) => {
                                     logsLengowData.push({
                                         orderID: order.marketplace_order_id,
                                         type: 'error',
-                                        msg: `Dispatch VTEX Order: ${dispatchResult.error}`,
+                                        msg: `Dispatch VTEX Order: ${JSON.stringify(dispatchResult.error,null,2)}`,
                                         date: moment()
                                     })
                                     console.log('ERROR on Dispatch VTEX Order', JSON.stringify(dispatchResult.error, null, 2))

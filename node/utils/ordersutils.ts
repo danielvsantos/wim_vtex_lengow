@@ -11,7 +11,7 @@ const LENGOW_API_SANDBOX_URL = 'api.lengow.net';
 const LENGOW_API_NUM_RETRIES = 3;
 const LENGOW_API_RETRY_WAIT_TIME = 1000;
 export const LENGOW_ORDERS_PER_PAGE = 50
-export const LENGOW_FULLFILLED_STATUS_ORDERS = ['waiting_shipment','shipped','closed']
+export const LENGOW_FULLFILLED_STATUS_ORDERS = ['shipped','closed']
 
 export const setDefaultHeaders = (res) => {
     res.set('Access-Control-Allow-Methods', 'POST, GET')
@@ -22,7 +22,7 @@ export const setDefaultHeaders = (res) => {
 
 export const getAjaxDataByGET = async (options) => {
     let response = <any>{};
-    response = await axios.get(options.url,{headers:options.headers})
+    response = await axios.get(options.url,{headers:options.headers, timeout: 30000})
     .catch(function(error){
         return {error}
     });
@@ -37,7 +37,7 @@ export const getAjaxDataByGET = async (options) => {
 
 export const getAjaxData = async (options) => {
     let response = <any>{};
-    response = await axios[options.operation](options.url,options.data,{headers:options.headers})
+    response = await axios[options.operation](options.url,options.data,{headers:options.headers, timeout: 30000})
     .catch(function(error){
         return {error}
     });
@@ -62,11 +62,20 @@ export const convertCountryAlpha2ToAlpha3 = (iso_alpha2) => {
 }
 
 export const formatLengowCustomerToVTEX = (deliveryAddress,billingAddress) => {
+    let firstName = (deliveryAddress.first_name ? deliveryAddress.first_name : (billingAddress.first_name ? billingAddress.first_name : false))
+    let lastName = (deliveryAddress.last_name ? deliveryAddress.last_name : (billingAddress.last_name ? billingAddress.last_name : false))
+    if(!firstName && deliveryAddress.full_name){
+        firstName = deliveryAddress.full_name.split(' ').slice(0, 1).join(' ');
+    }
+    if(!lastName  && deliveryAddress.full_name){
+        lastName = deliveryAddress.full_name.split(' ').slice(1).join(' ');
+    }
+    
     let customerData = {
         'id' : 'clientProfileData',
-        'email' : (billingAddress.email ? billingAddress.email : 'vtexlengow@vtexlengow.com'),
-        'firstName' : (billingAddress.first_name ? billingAddress.first_name : 'Undefined'),
-        'lastName' : (billingAddress.last_name ? billingAddress.last_name : 'Undefined'),
+        'email' : (deliveryAddress.email ? deliveryAddress.email : 'vtexlengow@vtexlengow.com'),
+        'firstName' : (firstName ? firstName : 'Undefined'),
+        'lastName' : (lastName ? lastName : 'Undefined'),
         'documentType' : null,
         'document' : null,
         'phone' : billingAddress.phone_mobile,
