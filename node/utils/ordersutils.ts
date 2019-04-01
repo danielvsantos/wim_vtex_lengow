@@ -160,16 +160,25 @@ export const getLengowURL = (dataLengowConfig) => {
 }
 
 export const formatLengowDeliveryAddressToVTEX = (deliveryAddress) => {
+    let firstName = (deliveryAddress.first_name ? deliveryAddress.first_name : false)
+    let lastName = (deliveryAddress.last_name ? deliveryAddress.last_name : false)
+    if(!firstName && deliveryAddress.full_name){
+        firstName = deliveryAddress.full_name.split(' ').slice(0, 1).join(' ');
+    }
+    if(!lastName  && deliveryAddress.full_name){
+        lastName = deliveryAddress.full_name.split(' ').slice(1).join(' ');
+    }
+
     let address = {
         'addressType' : 'residential',
         'addressName' : deliveryAddress.id,
-        'receiverName' : (deliveryAddress.first_name ? deliveryAddress.first_name : 'Undefined') + ' ' + (deliveryAddress.last_name ? deliveryAddress.last_name : 'Undefined'),
+        'receiverName' : (firstName ? firstName : 'Undefined') + ' ' + (lastName ? lastName : 'Undefined'),
         'addressId' : '',
         'postalCode' : deliveryAddress.zipcode,
         'city' : deliveryAddress.city,
         'state' : deliveryAddress.state_region ? deliveryAddress.state_region : '',
         'country' : convertCountryAlpha2ToAlpha3(deliveryAddress.common_country_iso_a2),
-        'street' : deliveryAddress.first_line + ' ' + (deliveryAddress.second_line ? deliveryAddress.second_line : 'Undefined') + ' ' + (deliveryAddress.complement ? deliveryAddress.complement : 'Undefined'),
+        'street' : deliveryAddress.first_line + ' ' + (deliveryAddress.second_line ? deliveryAddress.second_line : '--') + ' ' + (deliveryAddress.complement ? deliveryAddress.complement : '--'),
     }
 
     return address;
