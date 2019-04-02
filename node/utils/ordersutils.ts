@@ -415,7 +415,7 @@ export const getLengowOrders = async (saleChannel,lengowMarketplace,lengowToken,
         if(typeof lengowOrders.results != "undefined"){
             
             if(lengowOrders.next){
-                let nextResults = await getLengowOrders(lengowToken,authToken, dataLengowConfig, marketPlaceOrderId,pageNumber+1,pageSize)
+                let nextResults = await getLengowOrders(saleChannel,lengowMarketplace,lengowToken,authToken, dataLengowConfig, marketPlaceOrderId,pageNumber+1,pageSize)
                 lengowOrders.results.push(...nextResults.results)
             }
         }

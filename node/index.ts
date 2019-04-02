@@ -37,7 +37,7 @@ export default {
     importorders: async (ctx) => {
       let result = importOrders(ctx);
       setDefaultHeaders(ctx.response);
-      ctx.response.body = result;
+      ctx.response.body = "Import running in background. Take a look to the log for details. Please close this window.";
     },
     createFeed: async (ctx) => {
       const { response: res, vtex: ioContext } = ctx
