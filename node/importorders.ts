@@ -263,7 +263,7 @@ export const importOrders = async (ctx) => {
                                 logsLengowData.push({
                                     orderID: order.marketplace_order_id,
                                     type: 'error',
-                                    msg: `ERROR on insert VTEX order for Lengow Order: ${order.marketplace_order_id} - ${JSON.stringify(orderVtexInserted.error)}`,
+                                    msg: `ERROR on insert VTEX order for Lengow Order: ${order.marketplace_order_id} - #### SIMULATION DATA ####: ${JSON.stringify(simulationCall.data,null,2)} - #### VTEX ORDER POST DATA ####: ${JSON.stringify(optionsInsertOrder.data,null,2)} - #### VTEX RESPONSE ####: ${JSON.stringify(orderVtexInserted.error)}`,
                                     date: moment()
                                 })
                                 console.log(`ERROR on insert VTEX order for Lengow Order ${order.marketplace_order_id}`, orderVtexInserted.error)
