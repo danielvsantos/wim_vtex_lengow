@@ -1,7 +1,7 @@
 {
   "vendor": "webimpacto",
   "name": "wimvtexlengow",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "title": "Lengow Integration",
   "description": "Integrate sync orders from Lengow flow",
   "credentialType": "absolute",

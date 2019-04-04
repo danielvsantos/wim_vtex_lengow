@@ -1,7 +1,7 @@
 import React from 'react'
 import { compose, graphql } from 'react-apollo'
 import { Doughnut } from 'react-chartjs-2';
-import DatePicker from "react-datepicker";
+import { DatePicker } from 'vtex.styleguide'
 import moment from "moment";
 
 import ordersLengow from '../graphql/ordersLengow.graphql'
@@ -47,8 +47,8 @@ class LengowStats extends React.Component {
 
 
         this.state = {
-            startDate: moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
-            endDate: moment().set({ hour: 23, minute: 59, second: 59, millisecond: 999 }),
+            startDate: new Date(),//moment().set({ hour: 0, minute: 0, second: 0, millisecond: 0 }),
+            endDate: new Date(),//moment().set({ hour: 23, minute: 59, second: 59, millisecond: 999 }),
             ordersData: ordersData,
             chartCountOrders: {
                 labels: [],
@@ -76,8 +76,11 @@ class LengowStats extends React.Component {
     }
 
     getChartData() {
+        console.log(this.state.startDate)
+        console.log((moment(this.state.startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })).format())
+
         let newOrdersData = ordersData.filter(
-            item => item.date > this.state.startDate.format() && item.date < this.state.endDate.format()
+            item => item.date > (moment(this.state.startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format()) && item.date < (moment(this.state.endDate).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format())
         );
 
         let marketPlaces = [...new Set(newOrdersData.map(item => item.marketPlace))]
@@ -151,17 +154,19 @@ class LengowStats extends React.Component {
                 <h3>Select Dates</h3>
 
                 <div >
-                    <label htmlFor="startDate"> Start Date: </label>
                     <DatePicker
-                        selected={this.state.startDate}
+                        label="Start Date"
+                        value={this.state.startDate}
                         onChange={this.handleStartDate}
+                        locale="en-US"
                     />
                 </div>
                 <div>
-                    <label htmlFor="startDate"> End Date: </label>
                     <DatePicker
-                        selected={this.state.endDate}
+                        label="End Date"
+                        value={this.state.endDate}
                         onChange={this.handleEndDate}
+                        locale="es-US"
                     />
                 </div>
 

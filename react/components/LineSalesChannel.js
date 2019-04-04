@@ -22,7 +22,7 @@ export default class LineSalesChannel extends Component{
     
     render(){
         return (
-            <div className="flex" data-line={this.props.lineId}>
+            <div className="flex mt3" data-line={this.props.lineId}>
                 <div className="w-50">
                     <Dropdown className="tc pa2" 
                             options={this.props.salesChannel.map((item) => {return {value: item.Id, label: item.Name}})}  

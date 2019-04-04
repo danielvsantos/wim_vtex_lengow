@@ -4,3 +4,13 @@
 .mb-auto{
     margin-bottom: auto;
 }
+.lengow-error{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: block;
+    white-space: nowrap;
+}
+.bg-base {
+    background-color: #fff;
+    overflow: hidden;
+}

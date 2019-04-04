@@ -95,8 +95,9 @@ class LengowLogs extends React.Component {
                 <div>
                     <h2>Logs</h2>   
                     {this.state.logsData && this.state.logsData.length >0 && this.state.logsData.map((item,key) => {
+                        let class_name = `${colorError(item.type)} lengow-${item.type}`;
                         return (
-                            <p key={key} className={colorError(item.type)}> {item.date} - {item.type}: {item.msg} </p>
+                            <p key={key} className={class_name}> {item.date} - {item.type}: {item.msg} </p>
                         )
                     })}
                     {this.state.logsData &&  this.state.logsData.length == 0 && 
