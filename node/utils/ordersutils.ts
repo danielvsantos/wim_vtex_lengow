@@ -381,7 +381,7 @@ export const getLengowOrders = async (saleChannel,lengowMarketplace,lengowToken,
     if(marketPlaceOrderId){
         lengowFilterOrders.marketplace_order_id = marketPlaceOrderId
     }else{
-        lengowFilterOrders.updated_from = dateFilter.toISOString().replace(/\..+/, '+00:00')
+        lengowFilterOrders.marketplace_order_date_from = dateFilter.toISOString().replace(/\..+/, '+00:00')
         if(!debug){
             lengowFilterOrders.merchant_order_id = '' //Si no está importado, no tiene merchant_order_id
         }
