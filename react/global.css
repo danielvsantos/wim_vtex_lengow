@@ -9,6 +9,10 @@
     overflow: hidden;
     display: block;
     white-space: nowrap;
+    cursor: pointer;
+}
+.lengow-error:hover{
+    white-space: normal;
 }
 .bg-base {
     background-color: #fff;

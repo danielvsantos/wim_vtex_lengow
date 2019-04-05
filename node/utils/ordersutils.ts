@@ -223,7 +223,18 @@ export const formatSimulationToOrderVTEX = (totalOrder,account,simulationData,pa
             'value' : 'Marketplace: ' + lengowOrderData.marketplace + "\n" + '---' + "\n" + lengowOrderData.comments,
             'expectedOrderFormSections' : {},
         },
-        'marketingData' : null,
+        'marketingData' : {
+            "id": "marketingData",
+            "utmSource": lengowOrderData.marketplace,
+            "utmPartner": null,
+            "utmMedium": null,
+            "utmCampaign": null,
+            "coupon": null,
+            "utmiCampaign": "",
+            "utmipage": "",
+            "utmiPart": "",
+            "marketingTags": []
+        },
     }]
     return new_order_params;
 }

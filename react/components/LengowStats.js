@@ -69,6 +69,12 @@ class LengowStats extends React.Component {
         this.handleStartDate = this.handleStartDate.bind(this);
         this.handleEndDate = this.handleEndDate.bind(this);
         this.getChartData = this.getChartData.bind(this);
+
+        if (!this.props.ordersLengow.loading) {
+            ordersData = this.props.ordersLengow.ordersLengow;
+
+            this.getChartData()
+        }
     }
 
     componentDidMount() {
@@ -76,9 +82,9 @@ class LengowStats extends React.Component {
     }
 
     getChartData() {
-        console.log(this.state.startDate)
-        console.log((moment(this.state.startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })).format())
 
+        console.log((moment(this.state.startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 })).format())
+        console.log(moment(this.state.endDate).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format())
         let newOrdersData = ordersData.filter(
             item => item.date > (moment(this.state.startDate).set({ hour: 0, minute: 0, second: 0, millisecond: 0 }).format()) && item.date < (moment(this.state.endDate).set({ hour: 23, minute: 59, second: 59, millisecond: 999 }).format())
         );
@@ -136,16 +142,16 @@ class LengowStats extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        
+
         if (!nextProps.ordersLengow.loading && nextProps.ordersLengow.ordersLengow && this.props.ordersLengow.loading) {
             ordersData = nextProps.ordersLengow.ordersLengow;
-            
+
             this.getChartData()
         }
     }
 
     render() {
-       
+
         const lengow_config = this.props.lengowConfig;
         return (
 
@@ -160,17 +166,18 @@ class LengowStats extends React.Component {
                         onChange={this.handleStartDate}
                         locale="en-US"
                     />
-                </div>
-                <div>
+                    <span className="ml4"></span>
                     <DatePicker
                         label="End Date"
                         value={this.state.endDate}
                         onChange={this.handleEndDate}
-                        locale="es-US"
+                        locale="en-US"
                     />
                 </div>
-
-                 {this.state.ordersData.length == 0 && 
+                {this.props.ordersLengow.loading && 
+                    <p> Loading...</p>
+                }
+                {this.state.ordersData.length == 0 && !this.props.ordersLengow.loading &&
                     <p> There's no exists orders between selected dates </p>
                 }
 
@@ -179,22 +186,22 @@ class LengowStats extends React.Component {
                         <div className="fl w-50 center">
                             <h2>Orders Count</h2>
                             <Doughnut width={900} height={450} data={this.state.chartCountOrders} />
-                            {this.state.chartCountOrders.datasets[0].data.length > 0 && 
-                                <p className="tc">Total orders: {this.state.chartCountOrders.datasets[0].data.reduce((prev, next) => (parseFloat(prev)+parseFloat(next)).toFixed(0) )} </p>
+                            {this.state.chartCountOrders.datasets[0].data.length > 0 &&
+                                <p className="tc">Total orders: {this.state.chartCountOrders.datasets[0].data.reduce((prev, next) => (parseFloat(prev) + parseFloat(next)).toFixed(0))} </p>
                             }
                         </div>
 
                         <div className="fl w-50 center">
                             <h2>Orders Amount</h2>
                             <Doughnut data={this.state.chartAmountOrders} />
-                            {this.state.chartAmountOrders.datasets[0].data.length > 0 && 
-                                <p className="tc">Total amount: {this.state.chartAmountOrders.datasets[0].data.reduce((prev, next) => (parseFloat(prev)+parseFloat(next)).toFixed(2) )} </p>
+                            {this.state.chartAmountOrders.datasets[0].data.length > 0 &&
+                                <p className="tc">Total amount: {this.state.chartAmountOrders.datasets[0].data.reduce((prev, next) => (parseFloat(prev) + parseFloat(next)).toFixed(2))} </p>
                             }
                         </div>
                     </div>
                 }
 
-               
+
 
 
             </div>
