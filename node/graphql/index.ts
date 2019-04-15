@@ -130,13 +130,22 @@ const fileName = `wimVtexLengow.txt`
         },
         logsLengow: async (_,args,ctx) => {
             const {vtex: ioContext} = ctx
+            console.log("hola")
             const vBase = VBaseClient(ioContext,`logsLengow.txt`)
 
             let response = <any>{};
             response = await vBase.getFile().catch(notFound())
 
+            console.log("hola2")
+
             if(response.data){
-                return JSON.parse(response.data.toString())
+                console.log("hola3")
+                try{
+                    return JSON.parse(response.data.toString())
+                }
+                catch(e){
+                    return []
+                }
             }
         }
     }

@@ -74,9 +74,10 @@ export const importOrders = async (ctx) => {
     responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
 
     var logsLengowData = []
-    if (responseLogsLengow.data) {
+    if (responseLogsLengow.data.toString()) {
         logsLengowData = JSON.parse(responseLogsLengow.data.toString());
     }
+
     /* END FOR SAVE LOGS */
 
     orderUtils.setDefaultHeaders(res)
