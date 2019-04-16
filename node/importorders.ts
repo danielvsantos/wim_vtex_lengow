@@ -75,7 +75,12 @@ export const importOrders = async (ctx) => {
 
     var logsLengowData = []
     if (responseLogsLengow.data.toString()) {
-        logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+        try{
+            logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+        }
+        catch(e){
+            logsLengowData = []
+        }
     }
 
     /* END FOR SAVE LOGS */

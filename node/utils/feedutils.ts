@@ -380,8 +380,13 @@ export const createFeed = async (ctx) => {
   responseLogsLengow = await vbaseLogsLengow.getFile().catch(notFound())
 
   var logsLengowData = []
-  if (responseLogsLengow.data) {
-    logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+  if (responseLogsLengow.data.toString()) {
+    try{
+      logsLengowData = JSON.parse(responseLogsLengow.data.toString());
+    }
+    catch(e){
+      logsLengowData = []
+    }
   }
 
   logsLengowData.push({
