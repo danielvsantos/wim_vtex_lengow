@@ -39,7 +39,7 @@ export const getProductsXML = async (account, authToken) => {
   var xmlRequestInfo = {
     url: `http://${account}.vtexcommercestable.com.br/XMLData/lengow.xml?t=${new Date().getTime()}`,
     headers: {
-      'VtexIdclientAutCookie': authToken,
+      //'VtexIdclientAutCookie': authToken,
       'Proxy-Authorization': authToken,
       'X-Vtex-Proxy-To': `https://${account}.vtexcommercestable.com.br`,
     }
@@ -232,6 +232,8 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                     //item.sellers[0].commertialOffer.AvailableQuantity,
                     bullet_points: product.metaTagDescription,
                     keywords: `${product.metaTagDescription}`,
+                    measurement_unit: item.measurementUnit,
+                    unit_multiplier: item.unitMultiplier,
                     product_type: 'parent'
                   }
                   productParentAux = { ...productParentAux, ...imageSkuURL }
@@ -300,6 +302,8 @@ export const formatProductFeed = (productsPerMkSC, dataLengowConfig, account) =>
                 //quantity_in_stock: item.sellers[0].commertialOffer.AvailableQuantity,
                 bullet_points: product.metaTagDescription,
                 keywords: `${product.metaTagDescription}`,
+                measurement_unit: item.measurementUnit,
+                unit_multiplier: item.unitMultiplier,
                 product_type
                 //attributes: {attribute: item.variations}
               }

@@ -100,18 +100,16 @@ const fileName = `wimVtexLengow.txt`
             let response = <any>{};
             
             response = await axios.get(optionsClientInfo.url, {headers: optionsClientInfo.headers}).catch(function(error){
-              
+              //console.log(error);
             });
             let returnData = [ `${account}.myvtex.com` ]
 
-            if(response.data && response.data.length){
+            if(response && response.data && response.data.length){
                 response.data.forEach(accountData => {
                     if(accountData.name == account){
                         returnData = [...returnData, ...accountData.hosts]
                     }
-                });
-
-                
+                }); 
             }
             
             return returnData;

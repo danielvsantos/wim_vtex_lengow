@@ -232,7 +232,7 @@ class WimVtexLengowSetup extends Component {
         window.postMessage({ action: { type: 'STOP_LOADING' } }, '*')
 
         const textButton = (!this.state.id_wim_lengow_config) ? 'SAVE' : 'UPDATE';
-
+        console.log('eee',this.props.getHosts);
         return (
             <div className="font-display dark-gray flex flex-wrap justify-center">
                 <div className="w-100 w-90-m w-60-l w-60-ns">
