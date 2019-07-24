@@ -5,7 +5,7 @@
     "timeout": 3600,
     "routes": {
       "invoiceOrderEndpoint":{
-        "path": "/integration/lengow/pub/orders/:marketplaceorderId/invoice",
+        "path": "/integration/lengow/pvt/orders/:marketplaceorderId/invoice",
         "public": true
       },
       "cancelOrderEndpoint":{
