@@ -15,7 +15,7 @@ export const changeOrderStatus = async (ctx, status) => {
     switch (status) {
         case 'cancel': orderString = req.url.replace(/integration\/lengow\/pvt\/orders\/|\/cancel/g, '').replace('/', '')
             break;
-        case 'invoice': orderString = req.url.replace(/integration\/lengow\/pub\/orders\/|\/invoice/g, '').replace('/', '')
+        case 'invoice': orderString = req.url.replace(/integration\/lengow\/pvt\/orders\/|\/invoice/g, '').replace('/', '')
             lengowStatus = 'ship'
             break;
     }
